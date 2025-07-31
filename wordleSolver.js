@@ -5,15 +5,18 @@ let solutions = [];
 let validWords = [];
 
 async function loadWordLists() {
+  const errDiv = document.getElementById('error');
+  errDiv.textContent = '';          // clear any old error
   try {
     const resp = await fetch('words.json');
-    const data = await resp.json();
-    // ensure uppercase
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+    const text = await resp.text();
+    const data = JSON.parse(text);
     solutions  = data.solutions.map(w => w.toUpperCase());
     validWords = data.validWords.map(w => w.toUpperCase());
   } catch (err) {
-    console.error('Failed to load words.json:', err);
-    alert('Error loading word lists; see console for details.');
+    console.error('loadWordLists error:', err);
+    errDiv.textContent = 'Error loading words.json: ' + err.message;
   }
 }
 
