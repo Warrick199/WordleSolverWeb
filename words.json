@@ -1,10 +1,10 @@
 {
   "solutions": [
     "CRANE","SLATE","CARTE","TRACE","REACT",
-    //* …all ~2300 solution words… *
+    /* …all ~2300 solution words… */
   ],
   "validWords": [
     "ABACK","ABASE","ABATE","ABBEY","ABBOT","ABHOR","ABOUT","ABOVE",
-    //* …all ~12 000 valid words… *
+    /* …all ~12 000 valid words… */
   ]
 }
