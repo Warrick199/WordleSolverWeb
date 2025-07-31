@@ -1,19 +1,24 @@
 // wordleSolver.js
 
-const solutions = [ /* … your column-A words … */ ];
-const validWords = [ /* … your column-B words … */ ];
+// Wait until the DOM is loaded, then hook the button
+document.addEventListener('DOMContentLoaded', function() {
+  const runBtn = document.getElementById('run');
+  const nextDiv = document.getElementById('next-guess');
+  const top5Div = document.getElementById('top5');
 
-function applyFilter(possible, feedback) {
-  // convert your VBA ApplyFilter here…
-  return possible;
-}
-function scoreAndSort(words) {
-  // tally frequencies, score, sort descending…
-  return words;
-}
+  runBtn.addEventListener('click', function() {
+    // For now, just show a test guess and a dummy top 5
+    nextDiv.textContent = 'CRANE';
 
-document.getElementById('run').addEventListener('click', () => {
-  // 1) read feedback from inputs…
-  // 2) filter / score / sort…
-  // 3) update #next-guess and #top5 in the DOM
+    // Dummy top-5 list
+    const top5 = ['CRANE','SLATE','CARTE','TRACE','REACT'];
+    // Clear any old content
+    top5Div.innerHTML = '';
+    // Render each word
+    top5.forEach(function(w) {
+      const span = document.createElement('span');
+      span.textContent = w + ' '; 
+      top5Div.appendChild(span);
+    });
+  });
 });
