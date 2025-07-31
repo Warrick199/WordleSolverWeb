@@ -1,12 +1,8 @@
 {
   "solutions": [
-    "CRANE","SLATE","CARTE","TRACE","REACT"
-    /* no comments here! */,
-    /* …all your ~2300 solution words… */
+    "CRANE","SLATE","CARTE","TRACE","REACT", …
   ],
   "validWords": [
-    "ABACK","ABASE","ABATE","ABBEY","ABBOT","ABHOR","ABOUT","ABOVE"
-    /* again, no comments! */,
-    /* …all your ~12 000 valid words… */
+    "ABACK","ABASE","ABATE","ABBEY","ABBOT","ABHOR","ABOUT","ABOVE", …
   ]
 }
