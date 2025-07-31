@@ -6,10 +6,13 @@ let validWords = [];
 
 async function loadWordLists() {
   const errDiv = document.getElementById('error');
-  errDiv.textContent = '';          // clear any old error
+  errDiv.textContent = '';  // clear any old error
+
   try {
     const resp = await fetch('words.json');
-    if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+    if (!resp.ok) {
+      throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+    }
     const text = await resp.text();
     const data = JSON.parse(text);
     solutions  = data.solutions.map(w => w.toUpperCase());
