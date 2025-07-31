@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wordle Solver</title>
+  <style>
+    /* simple layout styling */
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; }
+    input { width: 100%; text-transform: uppercase; text-align: center; font-size: 1.5rem; }
+    button { margin-top: 1rem; padding: .5rem 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Wordle Solver</h1>
+  <!-- Your 5×N inputs go here; for brevity, we’ll assume your script handles them -->
+  <button id="run">Next Guess</button>
+  <h2>Next Guess:</h2>
+  <div id="next-guess" class="grid"></div>
+  <h2>Top 5:</h2>
+  <div id="top5"></div>
+  <script src="wordleSolver.js"></script>
+</body>
+</html>
