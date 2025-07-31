@@ -1,3 +1,12 @@
+let solutions = [], validWords = [];
+
+async function loadWordLists() {
+  const resp = await fetch('words.json');
+  const data = await resp.json();
+  solutions = data.solutions;
+  validWords = data.validWords;
+}
+
 console.log('wordleSolver.js loaded');
 alert('wordleSolver.js is running!');
 // wordleSolver.js
