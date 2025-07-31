@@ -1,3 +1,5 @@
+console.log('wordleSolver.js loaded');
+alert('wordleSolver.js is running!');
 // wordleSolver.js
 
 // Wait until the DOM is loaded, then hook the button
