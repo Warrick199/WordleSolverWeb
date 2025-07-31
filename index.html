@@ -2,169 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wordle Solver</title>
   <style>
-    body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
     h1, h2 { text-align: center; }
-    .row { margin-bottom: 1rem; }
-    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.25rem; margin-bottom: 0.5rem; }
-    input { width: 100%; height: 2rem; text-transform: uppercase; text-align: center; font-size: 1rem; }
-    button { display: block; margin: 1rem auto; padding: 0.5rem 1rem; font-size: 1rem; }
-    #next-guess span { display: inline-block; width: 2rem; height: 2rem; line-height: 2rem; margin: 0.25rem; border: 1px solid #999; text-align: center; font-size: 1.5rem; }
-    #top5 p { margin: 0.25rem 0; text-align: center; font-size: 1.2rem; }
+    table { border-collapse: collapse; margin: 1rem auto; }
+    table, th, td { border: 1px solid #666; }
+    th, td { padding: 0.25rem; text-align: center; }
+    input { width: 2rem; height: 2rem; text-transform: uppercase; text-align: center; font-size: 1rem; }
+    button { margin: 0.5rem; padding: 0.5rem 1rem; font-size: 1rem; }
     #error { color: red; font-weight: bold; text-align: center; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
   <h1>Wordle Solver</h1>
   <div id="error"></div>
-  <div id="rows">
-    <!-- Predefined 6 guess rows -->
-    <div class="row">
-      <div class="grid">
-        <input class="guess" maxlength="1" placeholder="G" />
-        <input class="guess" maxlength="1" placeholder="G" />
-        <input class="guess" maxlength="1" placeholder="G" />
-        <input class="guess" maxlength="1" placeholder="G" />
-        <input class="guess" maxlength="1" placeholder="G" />
-      </div>
-      <div class="grid">
-        <input class="green" maxlength="1" placeholder="🟩" />
-        <input class="green" maxlength="1" placeholder="🟩" />
-        <input class="green" maxlength="1" placeholder="🟩" />
-        <input class="green" maxlength="1" placeholder="🟩" />
-        <input class="green" maxlength="1" placeholder="🟩" />
-      </div>
-      <div class="grid">
-        <input class="yellow" maxlength="1" placeholder="🟨" />
-        <input class="yellow" maxlength="1" placeholder="🟨" />
-        <input class="yellow" maxlength="1" placeholder="🟨" />
-        <input class="yellow" maxlength="1" placeholder="🟨" />
-        <input class="yellow" maxlength="1" placeholder="🟨" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="grid">
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="grid">
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="grid">
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="grid">
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="grid">
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-        <input class="guess" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-        <input class="green" maxlength="1" />
-      </div>
-      <div class="grid">
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-        <input class="yellow" maxlength="1" />
-      </div>
-    </div>
+
+  <!-- Green Feedback -->
+  <h2>Green (correct spot)</h2>
+  <table id="greenTable">
+    <tbody>
+      <!-- 6 rows of 5 inputs -->
+      <tr><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td></tr>
+      <tr><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td></tr>
+      <tr><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td></tr>
+      <tr><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td></tr>
+      <tr><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td></tr>
+      <tr><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td><td><input class="green" maxlength="1"></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Yellow Feedback -->
+  <h2>Yellow (wrong spot)</h2>
+  <table id="yellowTable">
+    <tbody>
+      <tr><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td></tr>
+      <tr><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td></tr>
+      <tr><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td></tr>
+      <tr><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td></tr>
+      <tr><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td></tr>
+      <tr><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td><td><input class="yellow" maxlength="1"></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Action Buttons -->
+  <div style="text-align:center;">
+    <button id="guessBtn">GUESS</button>
+    <button id="clearBtn">CLEAR</button>
   </div>
-  <button id="run">Next Guess</button>
-  <h2>Next Guess:</h2>
-  <div id="next-guess"></div>
-  <h2>Top 5:</h2>
-  <div id="top5"></div>
+
+  <!-- Guesses Table -->
+  <h2>Guesses</h2>
+  <table id="guessesTable">
+    <thead>
+      <tr><th>#</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+    </thead>
+    <tbody>
+      <!-- Populated by wordleSolver.js -->
+    </tbody>
+  </table>
+
+  <!-- Next 4 Guesses -->
+  <h2>Next 4 Guesses</h2>
+  <table id="nextTable">
+    <thead>
+      <tr><th>#</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+    </thead>
+    <tbody>
+      <!-- Populated by wordleSolver.js -->
+    </tbody>
+  </table>
+
   <script src="wordleSolver.js" defer></script>
 </body>
 </html>
