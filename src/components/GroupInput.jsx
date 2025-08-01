@@ -7,6 +7,11 @@ const STATUS_CLASSES = {
 }
 
 export default function GroupInput({
+  console.log('🟢 GroupInput letters prop:', letters);
+  if (!Array.isArray(letters)) {
+  console.error('🔴 Expected letters to be an array but got:', letters);
+  return null; // bail out early
+  }
   title,
   color,           // 'green' | 'yellow' | 'gray'
   letters,         // array of strings
@@ -26,7 +31,8 @@ export default function GroupInput({
       </div>
 
       <div className="flex">
-        {letters.map((ltr, i) => (
+        {letters.map
+          ? letters.map((ltr, i) => (
           <input
             key={i}
             type="text"
@@ -39,7 +45,9 @@ export default function GroupInput({
               text-center rounded
             `}
           />
-        ))}
+        ))
+        : null
+        }
       </div>
     </section>
   )
