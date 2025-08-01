@@ -6,17 +6,23 @@ const STATUS_CLASSES = {
   gray:   'bg-gray-500 text-white'
 }
 
+const TITLE_CLASSES = {
+  green: 'text-green-600',
+  yellow: 'text-yellow-500',
+  gray:   'text-gray-600'
+}
+
 export default function GroupInput({
   title,
-  color,
-  letters = [],           // default to an empty array
-  onLetterChange,
-  onClear
+  color = 'gray',
+  letters = [],
+  onLetterChange = () => {},
+  onClear = () => {}
 }) {
   return (
     <section className="my-6">
       <div className="flex justify-between items-center mb-2">
-        <h2 className={`font-semibold text-${color}-600`}>{title}</h2>
+        <h2 className={`font-semibold ${TITLE_CLASSES[color]}`}>{title}</h2>
         <button
           onClick={onClear}
           className="text-sm text-gray-500 hover:text-gray-700"
@@ -24,7 +30,6 @@ export default function GroupInput({
           Clear
         </button>
       </div>
-
       <div className="flex justify-center">
         {Array.isArray(letters)
           ? letters.map((ltr, i) => (
