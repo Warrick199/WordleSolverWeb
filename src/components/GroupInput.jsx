@@ -25,7 +25,7 @@ export default function GroupInput({
         </button>
       </div>
 
-      <div className="flex">
+      <div className="flex justify-center">
         {Array.isArray(letters)
           ? letters.map((ltr, i) => (
               <input
