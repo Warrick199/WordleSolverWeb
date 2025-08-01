@@ -2,10 +2,9 @@ import React from 'react'
 import LetterCell from './LetterCell'
 
 export default function LetterRow({
-  letters = [],      // default to an empty array
-  statuses = []      // default to an empty array
+  letters = [],
+  statuses = []
 }) {
-  // Ensure we’re working with arrays
   const safeLetters  = Array.isArray(letters)  ? letters  : []
   const safeStatuses = Array.isArray(statuses) ? statuses : []
 
