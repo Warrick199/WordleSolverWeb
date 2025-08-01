@@ -1,18 +1,20 @@
 import React, { useState } from 'react'
 import GroupInput from './components/GroupInput'
-import LetterRow from './components/LetterRow'
-import Controls from './components/Controls'
+import LetterRow  from './components/LetterRow'
+import Controls   from './components/Controls'
 
 export default function App() {
   const WORD_LEN = 5
-  const VALID_SLOTS = 6
 
+  // exactly 5 slots for both groups
   const [correctLetters, setCorrectLetters] = useState(
     Array(WORD_LEN).fill('')
   )
   const [validLetters, setValidLetters] = useState(
-    Array(VALID_SLOTS).fill('')
+    Array(WORD_LEN).fill('')
   )
+
+  // your guess rows
   const [rows, setRows] = useState([
     { letters: Array(WORD_LEN).fill(''), statuses: [] }
   ])
@@ -25,17 +27,13 @@ export default function App() {
 
   const clearAll = () => {
     setCorrectLetters(Array(WORD_LEN).fill(''))
-    setValidLetters(Array(VALID_SLOTS).fill(''))
+    setValidLetters(Array(WORD_LEN).fill(''))
     setRows([{ letters: Array(WORD_LEN).fill(''), statuses: [] }])
   }
 
   const update = () => {
-    // TODO: implement your solver logic here
-    console.log('Solving with:', {
-      correctLetters,
-      validLetters,
-      rows
-    })
+    // TODO: your solver logic
+    console.log({ correctLetters, validLetters, rows })
   }
 
   return (
@@ -47,7 +45,7 @@ export default function App() {
         </p>
       </header>
 
-      {/* Input groups */}
+      {/* Correct Letters */}
       <GroupInput
         title="Correct Letters"
         color="green"
@@ -60,6 +58,7 @@ export default function App() {
         onClear={() => setCorrectLetters(Array(WORD_LEN).fill(''))}
       />
 
+      {/* Valid Letters */}
       <GroupInput
         title="Valid Letters"
         color="yellow"
@@ -69,8 +68,11 @@ export default function App() {
           next[i] = v.toLowerCase()
           setValidLetters(next)
         }}
-        onClear={() => setValidLetters(Array(VALID_SLOTS).fill(''))}
+        onClear={() => setValidLetters(Array(WORD_LEN).fill(''))}
       />
+
+      {/* Guesses title */}
+      <h2 className="text-center font-semibold text-gray-700 mb-2">Guesses</h2>
 
       {/* Guess rows */}
       <main>
@@ -81,6 +83,7 @@ export default function App() {
             statuses={r.statuses}
           />
         ))}
+
         <div className="text-center my-4">
           <button
             onClick={addRow}
