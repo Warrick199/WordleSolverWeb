@@ -7,16 +7,11 @@ const STATUS_CLASSES = {
 }
 
 export default function GroupInput({
-  console.log('🟢 GroupInput letters prop:', letters);
-  if (!Array.isArray(letters)) {
-  console.error('🔴 Expected letters to be an array but got:', letters);
-  return null; // bail out early
-  }
   title,
-  color,           // 'green' | 'yellow' | 'gray'
-  letters,         // array of strings
-  onLetterChange,  // (index, newLetter) => void
-  onClear          // () => void
+  color,
+  letters = [],           // default to an empty array
+  onLetterChange,
+  onClear
 }) {
   return (
     <section className="my-6">
@@ -31,23 +26,22 @@ export default function GroupInput({
       </div>
 
       <div className="flex">
-        {letters.map
+        {Array.isArray(letters)
           ? letters.map((ltr, i) => (
-          <input
-            key={i}
-            type="text"
-            maxLength={1}
-            value={ltr}
-            onChange={e => onLetterChange(i, e.target.value)}
-            className={`
-              ${STATUS_CLASSES[color]}
-              w-12 h-12 mx-1 text-xl font-bold
-              text-center rounded
-            `}
-          />
-        ))
-        : null
-        }
+              <input
+                key={i}
+                type="text"
+                maxLength={1}
+                value={ltr}
+                onChange={e => onLetterChange(i, e.target.value)}
+                className={`
+                  ${STATUS_CLASSES[color] || ''}
+                  w-12 h-12 mx-1 text-xl font-bold
+                  text-center rounded
+                `}
+              />
+            ))
+          : null}
       </div>
     </section>
   )
