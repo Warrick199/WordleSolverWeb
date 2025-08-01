@@ -94,17 +94,17 @@ export default function App() {
 
       <Controls onClearAll={clearAll} onNextGuess={addRow} />
 
-      <h2 className="text-center font-semibold text-green-600 mb-2">
+      <h2 className="text-center font-semibold text-green-600 uppercase mb-2">
         Correct Letters
       </h2>
       {renderInputGrid(correctRows, setCorrectRows, 'bg-green-600')}
 
-      <h2 className="text-center font-semibold text-yellow-500 mb-2">
+      <h2 className="text-center font-semibold text-yellow-500 uppercase mb-2">
         Valid Letters
       </h2>
       {renderInputGrid(validRows, setValidRows, 'bg-yellow-500')}
 
-      <h2 className="text-center font-semibold text-gray-700 mb-2">
+      <h2 className="text-center font-semibold text-gray-700 uppercase mb-2">
         Guesses
       </h2>
       {renderInputGrid(
@@ -113,7 +113,7 @@ export default function App() {
         'bg-gray-100 dark:bg-gray-800'
       )}
 
-      <h2 className="text-center font-semibold text-blue-600 mb-2">
+      <h2 className="text-center font-semibold text-blue-600 uppercase mb-2">
         Next Best Guesses
       </h2>
       {renderReadOnlyGrid(nextBestGuesses)}
