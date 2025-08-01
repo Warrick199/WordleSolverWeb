@@ -12,9 +12,6 @@ export default function App() {
   )
   const [validLetters, setValidLetters] = useState(+     Array(6).fill('')
   )
-  const [absentLetters, setAbsentLetters] = useState(
-     Array(6).fill('')
-   )
 
   const [rows, setRows] = useState([
      { letters: Array(WORD_LEN).fill(''), statuses: [] }
@@ -53,20 +50,6 @@ export default function App() {
          })
        }}
        onClear={() => setCorrectLetters(Array(WORD_LEN).fill(''))}
-     />
-
-     <GroupInput
-       title="Valid Letters"
-       color="yellow"
-       letters={validLetters}
-       onLetterChange={(i, v) => {
-         setValidLetters(vl => {
-           const next = [...vl]
-           next[i] = v.toLowerCase()
-           return next
-         })
-       }}
-       onClear={() => setValidLetters(Array(6).fill(''))}
      />
 
      <GroupInput
