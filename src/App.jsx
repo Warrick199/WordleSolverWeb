@@ -1,35 +1,63 @@
 import React, { useState } from 'react'
-import GroupInput from './components/GroupInput'
 import LetterRow  from './components/LetterRow'
 import Controls   from './components/Controls'
 
 export default function App() {
   const WORD_LEN = 5
 
-  // exactly 5 slots for both groups
-  const [correctLetters, setCorrectLetters] = useState(
+  // Start with one row each
+  const [correctRows, setCorrectRows] = useState([
     Array(WORD_LEN).fill('')
-  )
-  const [validLetters, setValidLetters] = useState(
+  ])
+  const [validRows, setValidRows] = useState([
     Array(WORD_LEN).fill('')
-  )
-
-  // your guess rows
-  const [rows, setRows] = useState([
+  ])
+  const [guessRows, setGuessRows] = useState([
     { letters: Array(WORD_LEN).fill(''), statuses: [] }
   ])
 
-  const addRow = () =>
-    setRows(prev => [
-      ...prev,
+  // Add a new row to all three
+  const addRow = () => {
+    setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
+    setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
+    setGuessRows(gr => [
+      ...gr,
       { letters: Array(WORD_LEN).fill(''), statuses: [] }
     ])
-
-  const clearAll = () => {
-    setCorrectLetters(Array(WORD_LEN).fill(''))
-    setValidLetters(Array(WORD_LEN).fill(''))
-    setRows([{ letters: Array(WORD_LEN).fill(''), statuses: [] }])
   }
+
+  // Reset everything back to one blank row
+  const clearAll = () => {
+    setCorrectRows([Array(WORD_LEN).fill('')])
+    setValidRows([Array(WORD_LEN).fill('')])
+    setGuessRows([
+      { letters: Array(WORD_LEN).fill(''), statuses: [] }
+    ])
+  }
+
+  // Helper to render a grid of inputs
+  const renderInputGrid = (rows, setRows, bgClass) =>
+    rows.map((letters, rowIdx) => (
+      <div key={rowIdx} className="flex justify-center my-2">
+        {letters.map((ltr, colIdx) => (
+          <input
+            key={colIdx}
+            type="text"
+            maxLength={1}
+            value={ltr}
+            onChange={e => {
+              const next = rows.map(r => [...r])  // deep copy all rows
+              next[rowIdx][colIdx] = e.target.value.toLowerCase()
+              setRows(next)
+            }}
+            className={`
+              ${bgClass} text-white w-12 h-12 mx-1 text-xl font-bold
+              text-center rounded
+            `}
+          />
+        ))}
+      </div>
+    ))
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
@@ -41,46 +69,30 @@ export default function App() {
       </header>
 
       {/* Correct Letters */}
-      <GroupInput
-        title="Correct Letters"
-        color="green"
-        letters={correctLetters}
-        onLetterChange={(i, v) => {
-          const next = [...correctLetters]
-          next[i] = v.toLowerCase()
-          setCorrectLetters(next)
-        }}
-        onClear={() => setCorrectLetters(Array(WORD_LEN).fill(''))}
-      />
+      <h2 className="text-center font-semibold text-green-600 mb-2">
+        Correct Letters
+      </h2>
+      {renderInputGrid(correctRows, setCorrectRows, 'bg-green-600')}
 
       {/* Valid Letters */}
-      <GroupInput
-        title="Valid Letters"
-        color="yellow"
-        letters={validLetters}
-        onLetterChange={(i, v) => {
-          const next = [...validLetters]
-          next[i] = v.toLowerCase()
-          setValidLetters(next)
-        }}
-        onClear={() => setValidLetters(Array(WORD_LEN).fill(''))}
-      />
+      <h2 className="text-center font-semibold text-yellow-500 mb-2">
+        Valid Letters
+      </h2>
+      {renderInputGrid(validRows, setValidRows, 'bg-yellow-500')}
 
-      {/* Guesses title */}
-      <h2 className="text-center font-semibold text-gray-700 mb-2">Guesses</h2>
+      {/* Guesses */}
+      <h2 className="text-center font-semibold text-gray-700 mb-2">
+        Guesses
+      </h2>
+      {guessRows.map((r, i) => (
+        <LetterRow
+          key={i}
+          letters={r.letters}
+          statuses={r.statuses}
+        />
+      ))}
 
-      {/* Guess rows */}
-      <main>
-        {rows.map((r, idx) => (
-          <LetterRow
-            key={idx}
-            letters={r.letters}
-            statuses={r.statuses}
-          />
-        ))}
-      </main>
-
-      {/* Controls: Clear All + Next Guess */}
+      {/* Controls */}
       <Controls
         onClearAll={clearAll}
         onNextGuess={addRow}
