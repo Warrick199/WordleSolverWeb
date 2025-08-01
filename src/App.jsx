@@ -31,11 +31,6 @@ export default function App() {
     setRows([{ letters: Array(WORD_LEN).fill(''), statuses: [] }])
   }
 
-  const update = () => {
-    // TODO: your solver logic
-    console.log({ correctLetters, validLetters, rows })
-  }
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
@@ -83,18 +78,13 @@ export default function App() {
             statuses={r.statuses}
           />
         ))}
-
-        <div className="text-center my-4">
-          <button
-            onClick={addRow}
-            className="px-3 py-1 bg-blue-500 text-white rounded"
-          >
-            + Add Row
-          </button>
-        </div>
       </main>
 
-      <Controls onUpdate={update} onClearAll={clearAll} />
+      {/* Controls: Clear All + Next Guess */}
+      <Controls
+        onClearAll={clearAll}
+        onNextGuess={addRow}
+      />
     </div>
   )
 }
