@@ -21,15 +21,18 @@ export default function GroupInput({
 }) {
   return (
     <section className="my-6">
-      <div className="flex justify-between items-center mb-2">
+      {/* Centre the title, keep Clear on the right */}
+      <div className="flex justify-center items-center mb-2 relative">
         <h2 className={`font-semibold ${TITLE_CLASSES[color]}`}>{title}</h2>
         <button
           onClick={onClear}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="absolute right-0 text-sm text-gray-500 hover:text-gray-700"
         >
           Clear
         </button>
       </div>
+
+      {/* Centre the inputs */}
       <div className="flex justify-center">
         {Array.isArray(letters)
           ? letters.map((ltr, i) => (
