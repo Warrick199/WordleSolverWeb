@@ -42,7 +42,7 @@ Error generating stack: `+o.message+`
               w-12 h-12 mx-1 text-xl font-bold uppercase
               text-center rounded
             `},v))},a)),p=g=>g.map((w,S)=>le("div",{className:"flex justify-center my-2",children:w.map((D,c)=>le("div",{className:`
-              bg-purple-600 text-white
+              bg-blue-600 text-white
               w-12 h-12 mx-1 text-xl font-bold uppercase
               flex items-center justify-center rounded
             `,children:D||""},c))},S));return Ql("div",{className:`min-h-screen bg-white dark:bg-gray-900
