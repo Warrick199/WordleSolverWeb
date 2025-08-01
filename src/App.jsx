@@ -71,7 +71,7 @@ export default function App() {
           <div
             key={colIdx}
             className="
-              bg-purple-600 text-white
+              bg-blue-600 text-white
               w-12 h-12 mx-1 text-xl font-bold uppercase
               flex items-center justify-center rounded
             "
