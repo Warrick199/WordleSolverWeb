@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import LetterRow  from './components/LetterRow'
-import Controls   from './components/Controls'
+import LetterRow from './components/LetterRow'
+import Controls  from './components/Controls'
 
 export default function App() {
   const WORD_LEN = 5
@@ -35,7 +35,7 @@ export default function App() {
     ])
   }
 
-  // Helper to render a grid of inputs
+  // Helper to render your green & yellow grids
   const renderInputGrid = (rows, setRows, bgClass) =>
     rows.map((letters, rowIdx) => (
       <div key={rowIdx} className="flex justify-center my-2">
@@ -46,13 +46,13 @@ export default function App() {
             maxLength={1}
             value={ltr}
             onChange={e => {
-              const next = rows.map(r => [...r])  // deep copy all rows
-              next[rowIdx][colIdx] = e.target.value.toLowerCase()
+              const next = rows.map(r => [...r])  // deep-copy
+              next[rowIdx][colIdx] = e.target.value.toUpperCase()
               setRows(next)
             }}
             className={`
               ${bgClass} text-white w-12 h-12 mx-1 text-xl font-bold
-              text-center rounded
+              text-center uppercase rounded
             `}
           />
         ))}
@@ -85,18 +85,11 @@ export default function App() {
         Guesses
       </h2>
       {guessRows.map((r, i) => (
-        <LetterRow
-          key={i}
-          letters={r.letters}
-          statuses={r.statuses}
-        />
+        <LetterRow key={i} letters={r.letters} statuses={r.statuses} />
       ))}
 
       {/* Controls */}
-      <Controls
-        onClearAll={clearAll}
-        onNextGuess={addRow}
-      />
+      <Controls onClearAll={clearAll} onNextGuess={addRow} />
     </div>
   )
 }
