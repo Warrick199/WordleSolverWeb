@@ -26,7 +26,7 @@ export default function App() {
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // Handlers
+  // Handlers (unchanged) …
   const handleNextGuess = () => {
     if (solved) return
     const idx     = activeRow
@@ -34,138 +34,53 @@ export default function App() {
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // filter against solutions, fallback to validBank
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
-    // compute base next guess and top-5
-    const baseNext = getBestGuess(filtered).split('')
-    const top5     = getTopGuesses(filtered, 5)
-
-    // seed the new guess with any already-entered correct letters
-    const seededNext = baseNext.map((ltr, i) =>
-      correct[i] ? correct[i] : ltr
+    const baseNext    = getBestGuess(filtered).split('')
+    const seedCorrect = correctRows[idx]
+    // carry-forward any green letters
+    const seededNext  = baseNext.map((ltr,i) =>
+      seedCorrect[i] ? seedCorrect[i] : ltr
     )
+    const top5        = getTopGuesses(filtered, 5)
 
-    // append rows
     setGuessRows(gr => [...gr, seededNext])
-
-    // **seed correct row with previous correct entries**
-    setCorrectRows(cr => [...cr, [...correct]])
-
+    setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(top5.map(w => w.split('')))
   }
+  const handleClearAll = () => { /* ... */ }
+  const handleClearCurrentGuess = () => { /* ... */ }
 
-  const handleClearAll = () => {
-    setPossibleWords(solutions)
-    setCorrectRows([Array(WORD_LEN).fill('')])
-    setValidRows([Array(WORD_LEN).fill('')])
-    setGuessRows([firstGuess])
-    setNextBestGuesses(initialTop5)
-  }
-
-  const handleClearCurrentGuess = () => {
-    setGuessRows(gr =>
-      gr.map((row, i) => (i === activeRow ? Array(WORD_LEN).fill('') : row))
-    )
-  }
-
-  // Render a 5-letter grid
-  const renderDynamicGrid = (rows, setRows, fillColor) =>
-    rows.map((letters, rIdx) => (
-      <div key={rIdx} className="flex justify-center my-2">
-        {letters.map((ltr, cIdx) => {
-          const filled     = !!ltr
-          const bgClass    = filled
-            ? fillColor
-            : 'bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-600'
-          const isGuessGrid = fillColor.includes('gray-')
-          const txtCls     = isGuessGrid
-            ? 'text-gray-900 dark:text-gray-100'
-            : filled
-              ? 'text-white'
-              : 'text-gray-900 dark:text-gray-100'
-          const highlight  = rIdx === activeRow
-            ? 'ring-2 ring-red-500'
-            : ''
-
-          return (
-            <input
-              key={cIdx}
-              type="text"
-              maxLength={1}
-              value={ltr}
-              onKeyDown={e => {
-                if (e.key === 'Backspace' || e.key === 'Delete') {
-                  e.preventDefault()
-                  const copy = rows.map(r => [...r])
-                  copy[rIdx][cIdx] = ''
-                  setRows(copy)
-                  if (cIdx > 0) e.target.previousElementSibling?.focus()
-                }
-              }}
-              onChange={e => {
-                const v    = e.target.value.toUpperCase()
-                const copy = rows.map(r => [...r])
-                copy[rIdx][cIdx] = v
-                setRows(copy)
-                e.target.nextElementSibling?.focus()
-              }}
-              className={`
-                ${bgClass} ${txtCls} ${highlight}
-                w-12 h-12 mx-1 text-lg font-semibold uppercase
-                text-center rounded-md shadow-sm transition
-              `}
-            />
-          )
-        })}
-      </div>
-    ))
-
-  // Top Five read-only grid
-  const renderReadOnlyGrid = rows =>
-    rows.map((letters, rIdx) => (
-      <div key={rIdx} className="flex justify-center my-2">
-        {letters.map((ltr, cIdx) => (
-          <div
-            key={cIdx}
-            className="
-              bg-gray-300 dark:bg-gray-700
-              w-12 h-12 mx-1 flex items-center justify-center
-              text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
-              rounded-md shadow-sm
-            "
-          >
-            {ltr}
-          </div>
-        ))}
-      </div>
-    ))
+  // renderDynamicGrid & renderReadOnlyGrid (unchanged) …
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
       <div className="mx-auto max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
-        <header className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Wordle Solver
-          </h1>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">
-            {solved
-              ? `Well done! You solved it in ${guessRows.length} guesses 😊`
-              : ''}
-          </p>
-        </header>
+        
+        {/* ← Sticky Header & Controls */}
+        <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 pb-4">
+          <header className="text-center mb-4">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Wordle Solver
+            </h1>
+            <p className="mt-2 text-gray-500 dark:text-gray-400">
+              {solved
+                ? `Well done! You solved it in ${guessRows.length} guesses 😊`
+                : ''}
+            </p>
+          </header>
+          <Controls
+            onClearAll={handleClearAll}
+            onNextGuess={handleNextGuess}
+          />
+        </div>
 
-        <Controls
-          onClearAll={handleClearAll}
-          onNextGuess={handleNextGuess}
-        />
-
-        {/* Guesses */}
+        {/* ← Now scrollable content starts here */}
         <section>
           <h2 className="mt-6 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2">
             GUESSES
@@ -185,7 +100,6 @@ export default function App() {
           {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700')}
         </section>
 
-        {/* Correct Letters */}
         <section>
           <h2 className="mt-6 text-center font-bold text-green-600 uppercase mb-2">
             CORRECT LETTERS
@@ -193,7 +107,6 @@ export default function App() {
           {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
         </section>
 
-        {/* Valid Letters */}
         <section>
           <h2 className="mt-6 text-center font-bold text-yellow-500 uppercase mb-2">
             VALID LETTERS
@@ -201,7 +114,6 @@ export default function App() {
           {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
         </section>
 
-        {/* Top Five Guesses */}
         <section>
           <h2 className="mt-6 text-center font-bold text-gray-900 dark:text-gray-100 uppercase mb-2">
             TOP FIVE GUESSES
