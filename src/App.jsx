@@ -16,9 +16,9 @@ export default function App() {
   const top5Start  = getTopGuesses(allWords, 5)
 
   const [possibleWords, setPossibleWords] = useState(allWords)
-  const [correctRows,     setCorrectRows]     = useState([Array(WORD_LEN).fill('')])
-  const [validRows,       setValidRows]       = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,       setGuessRows]       = useState([firstGuess.split('')])
+  const [correctRows,     setCorrectRows]   = useState([Array(WORD_LEN).fill('')])
+  const [validRows,       setValidRows]     = useState([Array(WORD_LEN).fill('')])
+  const [guessRows,       setGuessRows]     = useState([firstGuess.split('')])
   const [nextBestGuesses, setNextBestGuesses] = useState(
     top5Start.map(w => w.split(''))
   )
@@ -29,14 +29,13 @@ export default function App() {
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // filter and score
     const filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     setPossibleWords(filtered)
-    const nextWord = getBestGuess(filtered)
+
+    const newGuess = getBestGuess(filtered)
     const top5     = getTopGuesses(filtered, 5)
 
-    // append new rows
-    setGuessRows(gr => [...gr, nextWord.split('')])
+    setGuessRows(gr => [...gr, newGuess.split('')])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(top5.map(w => w.split('')))
@@ -45,19 +44,19 @@ export default function App() {
   const handleClearAll = () => {
     const fresh   = initialPossibleWords()
     const fg      = getBestGuess(fresh)
-    const top5    = getTopGuesses(fresh, 5)
+    const t5      = getTopGuesses(fresh, 5)
     setPossibleWords(fresh)
     setCorrectRows([Array(WORD_LEN).fill('')])
     setValidRows([Array(WORD_LEN).fill('')])
     setGuessRows([fg.split('')])
-    setNextBestGuesses(top5.map(w => w.split('')))
+    setNextBestGuesses(t5.map(w => w.split('')))
   }
 
-  // grid that only colours when you type
+  // renders editable grid, colouring only when letters are entered
   const renderDynamicGrid = (rows, setRows, fillColor) =>
-    rows.map((letters, ridx) => (
-      <div key={ridx} className="flex justify-center my-2">
-        {letters.map((ltr, cidx) => {
+    rows.map((letters, r) => (
+      <div key={r} className="flex justify-center my-2">
+        {letters.map((ltr, c) => {
           const filled  = !!ltr
           const bgClass = filled
             ? fillColor
@@ -68,14 +67,14 @@ export default function App() {
 
           return (
             <input
-              key={cidx}
+              key={c}
               type="text"
               maxLength={1}
               value={ltr}
               onChange={e => {
                 const v    = e.target.value.toUpperCase()
                 const copy = rows.map(r => [...r])
-                copy[ridx][cidx] = v
+                copy[r][c] = v
                 setRows(copy)
               }}
               className={`
@@ -89,13 +88,13 @@ export default function App() {
       </div>
     ))
 
-  // read-only suggestions grid
+  // render read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
-    rows.map((letters, ridx) => (
-      <div key={ridx} className="flex justify-center my-2">
-        {letters.map((ltr, cidx) => (
+    rows.map((letters, r) => (
+      <div key={r} className="flex justify-center my-2">
+        {letters.map((ltr, c) => (
           <div
-            key={cidx}
+            key={c}
             className="
               bg-blue-600 text-white
               w-12 h-12 mx-1 text-xl font-bold uppercase
@@ -109,8 +108,7 @@ export default function App() {
     ))
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900
-                    text-gray-900 dark:text-gray-100 p-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
         <h1 className="text-2xl font-bold">Wordle Solver</h1>
         <p className="text-gray-600 dark:text-gray-400">
