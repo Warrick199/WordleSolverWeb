@@ -4,12 +4,15 @@ import wordsData from '../../words.json'
 export const WORD_LEN = 5
 
 export function initialPossibleWords() {
-  // Guard against different JSON shapes
+  // words.json has { solutions: [...], validWords: [...] }
   const list = Array.isArray(wordsData)
     ? wordsData
-    : Array.isArray(wordsData.words)
-      ? wordsData.words
-      : []
+    : Array.isArray(wordsData.validWords)
+      ? wordsData.validWords
+      : Array.isArray(wordsData.solutions)
+        ? wordsData.solutions
+        : []
+
   return list.map(w => w.toUpperCase())
 }
 
@@ -19,21 +22,22 @@ export function filterPossibleWords(possibleWords, guess, corrects, valids) {
   const cleanValids   = valids.map(c => c.toUpperCase()).filter(c => c)
 
   // letters in guess that are neither correct nor valid
-  const absent = cleanGuess.filter(
-    (c,i) => !cleanCorrects[i] && !cleanValids.includes(c)
+  const absentSet = new Set(
+    cleanGuess.filter(
+      (c,i) => !cleanCorrects[i] && !cleanValids.includes(c)
+    )
   )
-  const absentSet = new Set(absent)
 
   return possibleWords.filter(w => {
     // correct-position checks
     for (let i = 0; i < w.length; i++) {
       if (cleanCorrects[i] && w[i] !== cleanCorrects[i]) return false
     }
-    // must include all valids
+    // must include all valid letters
     for (const v of cleanValids) {
       if (!w.includes(v)) return false
     }
-    // must exclude all absents
+    // must exclude all absent letters
     for (const a of absentSet) {
       if (w.includes(a)) return false
     }
