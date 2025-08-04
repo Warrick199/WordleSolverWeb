@@ -1,11 +1,17 @@
+// src/components/Controls.jsx
 import React, { useState } from 'react'
 
 export default function Controls({ onNextGuess, onClearAll }) {
+  // start light (no .dark on <html>)
   const [dark, setDark] = useState(false)
 
   function toggleTheme() {
-    setDark(d => !d)
-    document.documentElement.classList.toggle('dark')
+    if (!dark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    setDark(!dark)
   }
 
   return (
