@@ -11,63 +11,76 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // 1) Seed data
-  const solutions    = initialPossibleWords()
-  const validBank    = initialValidWords()
-  const FIRST_GUESS  = 'CRANE'.split('')
-  const INITIAL_TOP5 = getTopGuesses(solutions, 5).map(w => w.split(''))
+  // 1) Load full solution and valid lists
+  const solutions   = initialPossibleWords()
+  const validBank   = initialValidWords()
 
-  // 2) State
-  const [possibleWords, setPossibleWords] = useState(solutions)
-  const [correctRows,    setCorrectRows]    = useState([Array(WORD_LEN).fill('')])
-  const [validRows,      setValidRows]      = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,      setGuessRows]      = useState([FIRST_GUESS])
-  const [nextBestGuesses, setNextBestGuesses] = useState(INITIAL_TOP5)
+  // 2) Compute dynamic first guess and initial top-5
+  const firstGuessWord = getBestGuess(solutions)            // e.g. "CRANE"
+  const initialTop5    = getTopGuesses(solutions, 5)        // e.g. ["CRANE","SLATE",...]
 
-  // 3) Determine active row and solved status
+  // 3) State
+  const [possibleWords,  setPossibleWords]   = useState(solutions)
+  const [correctRows,     setCorrectRows]     = useState([Array(WORD_LEN).fill('')])
+  const [validRows,       setValidRows]       = useState([Array(WORD_LEN).fill('')])
+  const [guessRows,       setGuessRows]       = useState([firstGuessWord.split('')])
+  const [nextBestGuesses, setNextBestGuesses] = useState(
+    initialTop5.map(w => w.split(''))
+  )
+
+  // 4) Helpers
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // 4) Handlers
+  // 5) Handlers
   const handleNextGuess = () => {
     if (solved) return
+
     const idx     = activeRow
     const guess   = guessRows[idx]
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
+    // filter against solutions, fallback to validBank
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
-    const ng = getBestGuess(filtered).split('')
-    const t5 = getTopGuesses(filtered, 5).map(w => w.split(''))
+    // compute next guess and top-5
+    const nextWord = getBestGuess(filtered)
+    const top5     = getTopGuesses(filtered, 5)
 
-    setGuessRows(gr => [...gr, ng])
+    // append rows
+    setGuessRows(gr => [...gr, nextWord.split('')])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
-    setNextBestGuesses(t5)
+    setNextBestGuesses(top5.map(w => w.split('')))
   }
 
   const handleClearAll = () => {
+    // re-run dynamic logic just like a page refresh
+    const fg   = getBestGuess(solutions)
+    const t5   = getTopGuesses(solutions, 5)
+
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
     setValidRows([Array(WORD_LEN).fill('')])
-    setGuessRows([FIRST_GUESS])
-    setNextBestGuesses(INITIAL_TOP5)
+    setGuessRows([fg.split('')])
+    setNextBestGuesses(t5.map(w => w.split('')))
   }
 
-  // 5) Render editable grids with red-box highlight on active row
+  // 6) Rendering helpers
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
-          const filled     = !!ltr
-          const bgClass    = filled
+          const filled  = !!ltr
+          const bgClass = filled
             ? fillColor
             : 'bg-transparent dark:bg-transparent border border-gray-400 dark:border-gray-600'
+          // Guesses grid text always black in light, white in dark:
           const isGuessGrid = fillColor.includes('gray-100')
           const txtCls     = isGuessGrid
             ? 'text-gray-900 dark:text-gray-100'
@@ -101,7 +114,6 @@ export default function App() {
       </div>
     ))
 
-  // 6) Render read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -120,6 +132,7 @@ export default function App() {
       </div>
     ))
 
+  // 7) Main render
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
