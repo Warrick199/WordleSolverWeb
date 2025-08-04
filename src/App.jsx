@@ -172,7 +172,7 @@ export default function App() {
 
         {/* Guesses */}
         <section>
-          <h2 className="mt-6 text-center font-bold text-gray-700 uppercase mb-2">
+          <h2 className="mt-6 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2">
             Guesses
           </h2>
           <div className="flex justify-center mb-4">
