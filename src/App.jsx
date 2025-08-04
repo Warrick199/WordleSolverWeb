@@ -26,7 +26,7 @@ export default function App() {
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // Next Guess handler
+  // Handlers (unchanged) ...
   const handleNextGuess = () => {
     if (solved) return
     const idx     = activeRow
@@ -52,7 +52,6 @@ export default function App() {
     setNextBestGuesses(top5.map(w => w.split('')))
   }
 
-  // Clear All handler
   const handleClearAll = () => {
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
@@ -61,7 +60,6 @@ export default function App() {
     setNextBestGuesses(initialTop5)
   }
 
-  // Clear current active guess
   const handleClearCurrentGuess = () => {
     setGuessRows(gr =>
       gr.map((row, i) =>
@@ -70,22 +68,22 @@ export default function App() {
     )
   }
 
-  // Render a 5-letter editable grid
+  // Rendering helpers (unchanged) ...
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
-          const filled  = !!ltr
-          const bgClass = filled
+          const filled     = !!ltr
+          const bgClass    = filled
             ? fillColor
             : 'bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-600'
           const isGuessGrid = fillColor.includes('gray-')
-          const txtCls  = isGuessGrid
+          const txtCls     = isGuessGrid
             ? 'text-gray-900 dark:text-gray-100'
             : filled
               ? 'text-white'
               : 'text-gray-900 dark:text-gray-100'
-          const highlight = rIdx === activeRow
+          const highlight  = rIdx === activeRow
             ? 'ring-2 ring-red-500'
             : ''
 
@@ -122,7 +120,6 @@ export default function App() {
       </div>
     ))
 
-  // Render read-only Top Five grid
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -144,13 +141,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Sticky header with reduced height */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 pt-4 pb-2 px-4">
-        <header className="text-center mb-2">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      {/* Sticky header with reduced height and centered content */}
+      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 px-4 flex flex-col justify-center">
+        <header className="text-center mb-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Wordle Solver
           </h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-gray-500 dark:text-gray-400 text-sm">
             {solved
               ? `Well done! You solved it in ${guessRows.length} guesses 😊`
               : ''}
