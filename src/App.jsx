@@ -52,7 +52,10 @@ export default function App() {
 
     // append rows
     setGuessRows(gr => [...gr, seededNext])
-    setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
+
+    // **seed correct row with previous correct entries**
+    setCorrectRows(cr => [...cr, [...correct]])
+
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(top5.map(w => w.split('')))
   }
