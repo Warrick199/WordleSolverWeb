@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState } from 'react'
 import Controls from './components/Controls'
 import {
@@ -11,18 +10,18 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // 1) Load initial pools and first guess
+  // 1) Seed data
   const solutions   = initialPossibleWords()
-  const validWords  = initialValidWords()
-  const firstGuess  = getBestGuess(solutions).split('')
-  const firstTop5   = getTopGuesses(solutions, 5).map(w => w.split(''))
+  const validBank   = initialValidWords()
+  const FIRST_GUESS = 'CRANE'.split('')
+  const INITIAL_TOP5 = getTopGuesses(solutions, 5).map(w => w.split(''))
 
   // 2) State
   const [possibleWords, setPossibleWords] = useState(solutions)
-  const [correctRows,     setCorrectRows]   = useState([Array(WORD_LEN).fill('')])
-  const [validRows,       setValidRows]     = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,       setGuessRows]     = useState([firstGuess])
-  const [nextBestGuesses, setNextBestGuesses] = useState(firstTop5)
+  const [correctRows,    setCorrectRows]    = useState([Array(WORD_LEN).fill('')])
+  const [validRows,      setValidRows]      = useState([Array(WORD_LEN).fill('')])
+  const [guessRows,      setGuessRows]      = useState([FIRST_GUESS])
+  const [nextBestGuesses,setNextBestGuesses] = useState(INITIAL_TOP5)
 
   // 3) Next Guess handler
   const handleNextGuess = () => {
@@ -31,32 +30,38 @@ export default function App() {
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // filter, with fallback to validWords if no solutions remain
+    // filter solutions, fallback to validBank
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
-    if (filtered.length === 0) filtered = filterPossibleWords(validWords, guess, correct, valid)
+    if (filtered.length === 0) {
+      filtered = filterPossibleWords(validBank, guess, correct, valid)
+    }
     setPossibleWords(filtered)
 
     // compute next guess + top5
     const ng = getBestGuess(filtered).split('')
     const t5 = getTopGuesses(filtered, 5).map(w => w.split(''))
 
-    // append rows
+    // append
     setGuessRows(gr => [...gr, ng])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(t5)
   }
 
-  // 4) Clear All = full page reload
+  // 4) Clear All = reset state like a fresh page
   const handleClearAll = () => {
-    window.location.reload()
+    setPossibleWords(solutions)
+    setCorrectRows([Array(WORD_LEN).fill('')])
+    setValidRows([Array(WORD_LEN).fill('')])
+    setGuessRows([FIRST_GUESS])
+    setNextBestGuesses(INITIAL_TOP5)
   }
 
-  // 5) Render editable grid (colours on entry)
+  // 5) Render grids
   const renderDynamicGrid = (rows, setRows, fillColor) =>
-    rows.map((letters, r) => (
-      <div key={r} className="flex justify-center my-2">
-        {letters.map((ltr, c) => {
+    rows.map((letters, rIdx) => (
+      <div key={rIdx} className="flex justify-center my-2">
+        {letters.map((ltr, cIdx) => {
           const filled  = !!ltr
           const bgClass = filled
             ? fillColor
@@ -64,17 +69,16 @@ export default function App() {
           const txtCls  = filled
             ? 'text-white'
             : 'text-gray-900 dark:text-gray-100'
-
           return (
             <input
-              key={c}
+              key={cIdx}
               type="text"
               maxLength={1}
               value={ltr}
               onChange={e => {
                 const v    = e.target.value.toUpperCase()
                 const copy = rows.map(r => [...r])
-                copy[r][c] = v
+                copy[rIdx][cIdx] = v
                 setRows(copy)
               }}
               className={`
@@ -88,13 +92,12 @@ export default function App() {
       </div>
     ))
 
-  // 6) Render read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
-    rows.map((letters, r) => (
-      <div key={r} className="flex justify-center my-2">
-        {letters.map((ltr, c) => (
+    rows.map((letters, rIdx) => (
+      <div key={rIdx} className="flex justify-center my-2">
+        {letters.map((ltr, cIdx) => (
           <div
-            key={c}
+            key={cIdx}
             className="
               bg-blue-600 text-white
               w-12 h-12 mx-1 text-xl font-bold uppercase
@@ -108,8 +111,7 @@ export default function App() {
     ))
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900
-                    text-gray-900 dark:text-gray-100 p-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
         <h1 className="text-2xl font-bold">Wordle Solver</h1>
         <p className="text-gray-600 dark:text-gray-400">
