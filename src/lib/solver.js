@@ -1,33 +1,39 @@
-import words from '../../words.json'  // adjust path if your words.json is elsewhere
+// src/lib/solver.js
+import wordsData from '../../words.json'
 
 export const WORD_LEN = 5
 
 export function initialPossibleWords() {
-  return words.map(w => w.toUpperCase())
+  // Guard against different JSON shapes
+  const list = Array.isArray(wordsData)
+    ? wordsData
+    : Array.isArray(wordsData.words)
+      ? wordsData.words
+      : []
+  return list.map(w => w.toUpperCase())
 }
 
 export function filterPossibleWords(possibleWords, guess, corrects, valids) {
   const cleanGuess    = guess.map(c => c.toUpperCase())
   const cleanCorrects = corrects.map(c => c.toUpperCase())
-  const cleanValids   = valids
-    .map(c => c.toUpperCase())
-    .filter(c => c)
+  const cleanValids   = valids.map(c => c.toUpperCase()).filter(c => c)
 
-  const absentCandidates = cleanGuess.filter(
+  // letters in guess that are neither correct nor valid
+  const absent = cleanGuess.filter(
     (c,i) => !cleanCorrects[i] && !cleanValids.includes(c)
   )
-  const absentSet = new Set(absentCandidates)
+  const absentSet = new Set(absent)
 
   return possibleWords.filter(w => {
-    // correct positions
+    // correct-position checks
     for (let i = 0; i < w.length; i++) {
       if (cleanCorrects[i] && w[i] !== cleanCorrects[i]) return false
     }
-    // must contain all valids
+    // must include all valids
     for (const v of cleanValids) {
       if (!w.includes(v)) return false
     }
-    // must not contain any absents
+    // must exclude all absents
     for (const a of absentSet) {
       if (w.includes(a)) return false
     }
@@ -38,17 +44,17 @@ export function filterPossibleWords(possibleWords, guess, corrects, valids) {
 export function scoreWords(possibleWords) {
   const freqs = {}
   for (const w of possibleWords) {
-    for (const c of Array.from(new Set(w))) {
+    for (const c of new Set(w)) {
       freqs[c] = (freqs[c] || 0) + 1
     }
   }
   return possibleWords
     .map(w => ({
-      word: w,
+      word:  w,
       score: Array.from(new Set(w))
-        .reduce((sum, c) => sum + freqs[c], 0)
+               .reduce((sum, c) => sum + freqs[c], 0)
     }))
-    .sort((a,b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score)
     .map(x => x.word)
 }
 
