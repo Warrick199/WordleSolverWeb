@@ -115,7 +115,7 @@ export default function App() {
       </div>
     ))
 
-  // Next Best Guesses: use same style as Guess boxes
+  // Next Best Guesses: same style as Guess boxes
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -154,26 +154,10 @@ export default function App() {
           onNextGuess={handleNextGuess}
         />
 
-        {/* Correct Letters */}
-        <section>
-          <h2 className="text-center font-bold text-green-600 uppercase mb-2">
-            Correct Letters
-          </h2>
-          {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
-        </section>
-
-        {/* Valid Letters */}
-        <section>
-          <h2 className="mt-6 text-center font-bold text-yellow-500 uppercase mb-2">
-            Valid Letters
-          </h2>
-          {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
-        </section>
-
         {/* Guesses */}
         <section>
           <h2 className="mt-6 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2">
-            Guesses
+            GUESSES
           </h2>
           <div className="flex justify-center mb-4">
             <button
@@ -190,10 +174,26 @@ export default function App() {
           {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700')}
         </section>
 
+        {/* Correct Letters */}
+        <section>
+          <h2 className="mt-6 text-center font-bold text-green-600 uppercase mb-2">
+            CORRECT LETTERS
+          </h2>
+          {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
+        </section>
+
+        {/* Valid Letters */}
+        <section>
+          <h2 className="mt-6 text-center font-bold text-yellow-500 uppercase mb-2">
+            VALID LETTERS
+          </h2>
+          {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
+        </section>
+
         {/* Top Five Guesses */}
         <section>
           <h2 className="mt-6 text-center font-bold text-gray-900 dark:text-gray-100 uppercase mb-2">
-            Top Five Guesses
+            TOP FIVE GUESSES
           </h2>
           {renderReadOnlyGrid(nextBestGuesses)}
         </section>
