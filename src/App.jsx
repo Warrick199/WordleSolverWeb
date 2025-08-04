@@ -12,10 +12,10 @@ import {
 
 export default function App() {
   // Seed & initial solver state
-  const solutions   = initialPossibleWords()
-  const validBank   = initialValidWords()
-  const firstGuess  = getBestGuess(solutions).split('')
-  const initialTop5 = getTopGuesses(solutions, 5).map(w => w.split(''))
+  const solutions    = initialPossibleWords()
+  const validBank    = initialValidWords()
+  const firstGuess   = getBestGuess(solutions).split('')
+  const initialTop5  = getTopGuesses(solutions, 5).map(w => w.split(''))
 
   const [possibleWords,   setPossibleWords]   = useState(solutions)
   const [correctRows,      setCorrectRows]     = useState([Array(WORD_LEN).fill('')])
@@ -26,7 +26,7 @@ export default function App() {
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // Next Guess handler
+  // Handlers
   const handleNextGuess = () => {
     if (solved) return
     const idx     = activeRow
@@ -40,11 +40,11 @@ export default function App() {
     }
     setPossibleWords(filtered)
 
-    const baseNext    = getBestGuess(filtered).split('')
-    const seededNext  = baseNext.map((ltr,i) =>
+    const baseNext   = getBestGuess(filtered).split('')
+    const seededNext = baseNext.map((ltr, i) =>
       correct[i] ? correct[i] : ltr
     )
-    const top5        = getTopGuesses(filtered, 5)
+    const top5       = getTopGuesses(filtered, 5)
 
     setGuessRows(gr => [...gr, seededNext])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
@@ -52,7 +52,6 @@ export default function App() {
     setNextBestGuesses(top5.map(w => w.split('')))
   }
 
-  // Clear All handler
   const handleClearAll = () => {
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
@@ -61,7 +60,6 @@ export default function App() {
     setNextBestGuesses(initialTop5)
   }
 
-  // Clear current active guess
   const handleClearCurrentGuess = () => {
     setGuessRows(gr =>
       gr.map((row, i) =>
@@ -70,7 +68,7 @@ export default function App() {
     )
   }
 
-  // Render editable grid (Correct/Valid/Guess rows)
+  // Render editable grid
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -101,9 +99,7 @@ export default function App() {
                   const copy = rows.map(r => [...r])
                   copy[rIdx][cIdx] = ''
                   setRows(copy)
-                  if (cIdx > 0) {
-                    e.target.previousElementSibling?.focus()
-                  }
+                  if (cIdx > 0) e.target.previousElementSibling?.focus()
                 }
               }}
               onChange={e => {
@@ -124,7 +120,7 @@ export default function App() {
       </div>
     ))
 
-  // Render read-only Top Five grid
+  // Render read-only grid
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -145,74 +141,70 @@ export default function App() {
     ))
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 overflow-auto">
-      <div className="mx-auto max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-lg">
+    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6">
+        <header className="text-center mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Wordle Solver
+          </h1>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
+            {solved
+              ? `Well done! You solved it in ${guessRows.length} guesses 😊`
+              : ''}
+          </p>
+        </header>
+        <Controls
+          onClearAll={handleClearAll}
+          onNextGuess={handleNextGuess}
+        />
+      </div>
 
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 p-6 border-b border-gray-200 dark:border-gray-700">
-          <header className="text-center mb-4">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              Wordle Solver
-            </h1>
-            <p className="mt-2 text-gray-500 dark:text-gray-400">
-              {solved
-                ? `Well done! You solved it in ${guessRows.length} guesses 😊`
-                : ''}
-            </p>
-          </header>
+      {/* Scrollable main content */}
+      <div className="flex-1 overflow-auto p-6">
+        {/* Guesses */}
+        <section>
+          <h2 className="mt-6 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2">
+            GUESSES
+          </h2>
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={handleClearCurrentGuess}
+              className="
+                px-3 py-1 text-sm bg-gray-300 dark:bg-gray-700
+                text-gray-700 dark:text-gray-200 rounded-md
+                hover:bg-gray-400 dark:hover:bg-gray-600 transition
+              "
+            >
+              CLEAR CURRENT GUESS
+            </button>
+          </div>
+          {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700')}
+        </section>
 
-          <Controls
-            onClearAll={handleClearAll}
-            onNextGuess={handleNextGuess}
-          />
-        </div>
+        {/* Correct Letters */}
+        <section>
+          <h2 className="mt-6 text-center font-bold text-green-600 uppercase mb-2">
+            CORRECT LETTERS
+          </h2>
+          {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
+        </section>
 
-        {/* Scrollable Content */}
-        <div className="p-6">
-          {/* Guesses */}
-          <section>
-            <h2 className="mt-6 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2">
-              GUESSES
-            </h2>
-            <div className="flex justify-center mb-4">
-              <button
-                onClick={handleClearCurrentGuess}
-                className="
-                  px-3 py-1 text-sm bg-gray-300 dark:bg-gray-700
-                  text-gray-700 dark:text-gray-200 rounded-md
-                  hover:bg-gray-400 dark:hover:bg-gray-600 transition
-                "
-              >
-                CLEAR CURRENT GUESS
-              </button>
-            </div>
-            {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700')}
-          </section>
+        {/* Valid Letters */}
+        <section>
+          <h2 className="mt-6 text-center font-bold text-yellow-500 uppercase mb-2">
+            VALID LETTERS
+          </h2>
+          {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
+        </section>
 
-          {/* Correct Letters */}
-          <section>
-            <h2 className="mt-6 text-center font-bold text-green-600 uppercase mb-2">
-              CORRECT LETTERS
-            </h2>
-            {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
-          </section>
-
-          {/* Valid Letters */}
-          <section>
-            <h2 className="mt-6 text-center font-bold text-yellow-500 uppercase mb-2">
-              VALID LETTERS
-            </h2>
-            {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
-          </section>
-
-          {/* Top Five Guesses */}
-          <section>
-            <h2 className="mt-6 text-center font-bold text-gray-900 dark:text-gray-100 uppercase mb-2">
-              TOP FIVE GUESSES
-            </h2>
-            {renderReadOnlyGrid(nextBestGuesses)}
-          </section>
-        </div>
+        {/* Top Five Guesses */}
+        <section>
+          <h2 className="mt-6 text-center font-bold text-gray-900 dark:text-gray-100 uppercase mb-2">
+            TOP FIVE GUESSES
+          </h2>
+          {renderReadOnlyGrid(nextBestGuesses)}
+        </section>
       </div>
     </div>
   )
