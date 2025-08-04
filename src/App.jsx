@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState } from 'react'
 import Controls from './components/Controls'
 import {
@@ -10,22 +11,27 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // Seed data
+  // 1) Seed data
   const solutions    = initialPossibleWords()
   const validBank    = initialValidWords()
   const FIRST_GUESS  = 'CRANE'.split('')
   const INITIAL_TOP5 = getTopGuesses(solutions, 5).map(w => w.split(''))
 
-  // State
-  const [possibleWords, setPossibleWords]       = useState(solutions)
-  const [correctRows,    setCorrectRows]         = useState([Array(WORD_LEN).fill('')])
-  const [validRows,      setValidRows]           = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,      setGuessRows]           = useState([FIRST_GUESS])
-  const [nextBestGuesses, setNextBestGuesses]    = useState(INITIAL_TOP5)
+  // 2) State
+  const [possibleWords, setPossibleWords] = useState(solutions)
+  const [correctRows,    setCorrectRows]    = useState([Array(WORD_LEN).fill('')])
+  const [validRows,      setValidRows]      = useState([Array(WORD_LEN).fill('')])
+  const [guessRows,      setGuessRows]      = useState([FIRST_GUESS])
+  const [nextBestGuesses, setNextBestGuesses] = useState(INITIAL_TOP5)
 
-  // Handlers
+  // 3) Determine active row and solved status
+  const activeRow = guessRows.length - 1
+  const solved    = correctRows[activeRow].every(c => c !== '')
+
+  // 4) Handlers
   const handleNextGuess = () => {
-    const idx     = guessRows.length - 1
+    if (solved) return
+    const idx     = activeRow
     const guess   = guessRows[idx]
     const correct = correctRows[idx]
     const valid   = validRows[idx]
@@ -53,10 +59,7 @@ export default function App() {
     setNextBestGuesses(INITIAL_TOP5)
   }
 
-  // Determine which row is active
-  const activeRow = guessRows.length - 1
-
-  // Renders editable grids (Correct, Valid, Guesses) with red border on active row
+  // 5) Render editable grids with red-box highlight on active row
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -98,7 +101,7 @@ export default function App() {
       </div>
     ))
 
-  // Read-only Next Best Guesses
+  // 6) Render read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -121,7 +124,11 @@ export default function App() {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
         <h1 className="text-2xl font-bold">Wordle Solver</h1>
-        <p className="text-gray-600 dark:text-gray-400">Messages Here</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          {solved
+            ? `Well done! You solved it in ${guessRows.length} guesses 😊`
+            : ''}
+        </p>
       </header>
 
       <Controls
