@@ -156,7 +156,7 @@ export default function App() {
 
         {/* Correct Letters */}
         <section>
-          <h2 className="text-center font-semibold text-green-600 uppercase mb-2">
+          <h2 className="text-center font-bold text-green-600 uppercase mb-2">
             Correct Letters
           </h2>
           {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
@@ -164,7 +164,7 @@ export default function App() {
 
         {/* Valid Letters */}
         <section>
-          <h2 className="mt-6 text-center font-semibold text-yellow-500 uppercase mb-2">
+          <h2 className="mt-6 text-center font-bold text-yellow-500 uppercase mb-2">
             Valid Letters
           </h2>
           {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
@@ -172,7 +172,7 @@ export default function App() {
 
         {/* Guesses */}
         <section>
-          <h2 className="mt-6 text-center font-semibold text-gray-700 uppercase mb-2">
+          <h2 className="mt-6 text-center font-bold text-gray-700 uppercase mb-2">
             Guesses
           </h2>
           <div className="flex justify-center mb-4">
@@ -192,7 +192,7 @@ export default function App() {
 
         {/* Top Five Guesses */}
         <section>
-          <h2 className="mt-6 text-center font-semibold text-gray-900 dark:text-gray-100 uppercase mb-2">
+          <h2 className="mt-6 text-center font-bold text-gray-900 dark:text-gray-100 uppercase mb-2">
             Top Five Guesses
           </h2>
           {renderReadOnlyGrid(nextBestGuesses)}
