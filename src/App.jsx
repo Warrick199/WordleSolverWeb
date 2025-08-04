@@ -63,16 +63,16 @@ export default function App() {
     )
   }
 
-  // Renders each 5-letter grid
+  // Dynamic grid for Correct / Valid / Guesses
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
-      <div key={rIdx} className="flex justify-center mb-4">
+      <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
           const filled     = !!ltr
           const bgClass    = filled
             ? fillColor
             : 'bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-600'
-          const isGuessGrid = fillColor.includes('gray-100')
+          const isGuessGrid = fillColor.includes('gray-')
           const txtCls     = isGuessGrid
             ? 'text-gray-900 dark:text-gray-100'
             : filled
@@ -94,10 +94,7 @@ export default function App() {
                   const copy = rows.map(r => [...r])
                   copy[rIdx][cIdx] = ''
                   setRows(copy)
-                  if (cIdx > 0) {
-                    const prev = e.target.previousElementSibling
-                    prev?.focus()
-                  }
+                  if (cIdx > 0) e.target.previousElementSibling?.focus()
                 }
               }}
               onChange={e => {
@@ -105,8 +102,7 @@ export default function App() {
                 const copy = rows.map(r => [...r])
                 copy[rIdx][cIdx] = v
                 setRows(copy)
-                const next = e.target.nextElementSibling
-                next?.focus()
+                e.target.nextElementSibling?.focus()
               }}
               className={`
                 ${bgClass} ${txtCls} ${highlight}
@@ -119,22 +115,24 @@ export default function App() {
       </div>
     ))
 
-  const renderReadOnlyGrid = rows => (
-    <div className="grid grid-cols-5 gap-3 justify-center mb-6">
-      {rows.flat().map((ltr, i) => (
-        <div
-          key={i}
-          className="
-            bg-blue-600 text-white
-            w-12 h-12 flex items-center justify-center
-            text-lg font-semibold uppercase rounded-md shadow
-          "
-        >
-          {ltr || ''}
-        </div>
-      ))}
-    </div>
-  )
+  // Next Best Guesses: same flex + mx-1 spacing as above
+  const renderReadOnlyGrid = rows =>
+    rows.map((letters, rIdx) => (
+      <div key={rIdx} className="flex justify-center my-2">
+        {letters.map((ltr, cIdx) => (
+          <div
+            key={cIdx}
+            className="
+              bg-blue-600 text-white
+              w-12 h-12 mx-1 flex items-center justify-center
+              text-lg font-semibold uppercase rounded-md shadow
+            "
+          >
+            {ltr}
+          </div>
+        ))}
+      </div>
+    ))
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
@@ -155,7 +153,6 @@ export default function App() {
           onNextGuess={handleNextGuess}
         />
 
-        {/* Correct Letters */}
         <section>
           <h2 className="text-center font-semibold text-green-600 uppercase mb-2">
             Correct Letters
@@ -163,7 +160,6 @@ export default function App() {
           {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
         </section>
 
-        {/* Valid Letters */}
         <section>
           <h2 className="text-center font-semibold text-yellow-500 uppercase mb-2">
             Valid Letters
@@ -171,7 +167,6 @@ export default function App() {
           {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
         </section>
 
-        {/* Guesses */}
         <section>
           <h2 className="text-center font-semibold text-gray-700 uppercase mb-2">
             Guesses
@@ -188,10 +183,9 @@ export default function App() {
               CLEAR CURRENT GUESS
             </button>
           </div>
-          {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-200 dark:bg-gray-700')}
+          {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700')}
         </section>
 
-        {/* Next Best Guesses */}
         <section>
           <h2 className="text-center font-semibold text-blue-600 uppercase mb-2">
             Next Best Guesses
