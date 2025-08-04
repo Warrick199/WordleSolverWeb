@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import Controls from './components/Controls'
 import {
   initialPossibleWords,
+  initialValidWords,
   filterPossibleWords,
   getBestGuess,
   getTopGuesses,
@@ -10,49 +11,62 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // initialise solver
-  const allWords   = initialPossibleWords()
-  const firstGuess = getBestGuess(allWords)
-  const top5Start  = getTopGuesses(allWords, 5)
+  // 1) Seed lists & first guess
+  const solutions   = initialPossibleWords()
+  const validWords  = initialValidWords()
+  const FIRST_GUESS = 'CRANE'.split('')
 
-  const [possibleWords, setPossibleWords] = useState(allWords)
-  const [correctRows,     setCorrectRows]   = useState([Array(WORD_LEN).fill('')])
-  const [validRows,       setValidRows]     = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,       setGuessRows]     = useState([firstGuess.split('')])
-  const [nextBestGuesses, setNextBestGuesses] = useState(
-    top5Start.map(w => w.split(''))
-  )
+  // 2) React state
+  const [possibleWords, setPossibleWords] = useState(solutions)
+  const [correctRows,    setCorrectRows]    = useState([Array(WORD_LEN).fill('')])
+  const [validRows,      setValidRows]      = useState([Array(WORD_LEN).fill('')])
+  const [guessRows,      setGuessRows]      = useState([FIRST_GUESS])
+  const [nextBestGuesses, setNextBestGuesses] = useState([
+    FIRST_GUESS,
+    Array(WORD_LEN).fill(''),
+    Array(WORD_LEN).fill(''),
+    Array(WORD_LEN).fill(''),
+    Array(WORD_LEN).fill('')
+  ])
 
+  // 3) Handler: Next Guess
   const handleNextGuess = () => {
     const idx     = guessRows.length - 1
     const guess   = guessRows[idx]
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    const filtered = filterPossibleWords(possibleWords, guess, correct, valid)
+    // a) filter against solutions list or fallback
+    let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
+    if (filtered.length === 0) {
+      filtered = filterPossibleWords(validWords, guess, correct, valid)
+    }
     setPossibleWords(filtered)
 
-    const newGuess = getBestGuess(filtered)
+    // b) compute next guess + top5
+    const nextWord = getBestGuess(filtered)
     const top5     = getTopGuesses(filtered, 5)
 
-    setGuessRows(gr => [...gr, newGuess.split('')])
+    // c) append rows
+    setGuessRows(gr => [...gr, nextWord.split('')])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(top5.map(w => w.split('')))
   }
 
+  // 4) Handler: Clear All
   const handleClearAll = () => {
-    const fresh   = initialPossibleWords()
-    const fg      = getBestGuess(fresh)
-    const t5      = getTopGuesses(fresh, 5)
-    setPossibleWords(fresh)
+    const fg   = getBestGuess(solutions)
+    const t5   = getTopGuesses(solutions, 5)
+
+    setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
     setValidRows([Array(WORD_LEN).fill('')])
     setGuessRows([fg.split('')])
     setNextBestGuesses(t5.map(w => w.split('')))
   }
 
-  // renders editable grid, colouring only when letters are entered
+  // 5) Render a grid where cells colour only when filled
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, r) => (
       <div key={r} className="flex justify-center my-2">
@@ -88,7 +102,7 @@ export default function App() {
       </div>
     ))
 
-  // render read-only Next Best Guesses
+  // 6) Read-only Next Best Guesses grid
   const renderReadOnlyGrid = rows =>
     rows.map((letters, r) => (
       <div key={r} className="flex justify-center my-2">
@@ -108,7 +122,8 @@ export default function App() {
     ))
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900
+                    text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
         <h1 className="text-2xl font-bold">Wordle Solver</h1>
         <p className="text-gray-600 dark:text-gray-400">
@@ -116,7 +131,10 @@ export default function App() {
         </p>
       </header>
 
-      <Controls onClearAll={handleClearAll} onNextGuess={handleNextGuess} />
+      <Controls
+        onClearAll={handleClearAll}
+        onNextGuess={handleNextGuess}
+      />
 
       <h2 className="text-center font-semibold text-green-600 uppercase mb-2">
         Correct Letters
