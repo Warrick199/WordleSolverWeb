@@ -81,17 +81,17 @@ export default function App() {
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
-          const filled     = !!ltr
-          const bgClass    = filled
+          const filled  = !!ltr
+          const bgClass = filled
             ? fillColor
             : 'bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-600'
           const isGuessGrid = fillColor.includes('gray-')
-          const txtCls     = isGuessGrid
+          const txtCls  = isGuessGrid
             ? 'text-gray-900 dark:text-gray-100'
             : filled
               ? 'text-white'
               : 'text-gray-900 dark:text-gray-100'
-          const highlight  = rIdx === activeRow
+          const highlight = rIdx === activeRow
             ? 'ring-2 ring-red-500'
             : ''
 
@@ -150,8 +150,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 pt-4 pb-2 px-4 flex flex-col justify-center">
+      {/* Fixed Header to survive iOS keyboard */}
+      <div
+        className="
+          fixed inset-x-0 top-0 z-20
+          bg-white dark:bg-gray-800
+          border-b border-gray-200 dark:border-gray-700
+          pt-4 pb-2 px-4 flex flex-col justify-center
+        "
+        style={{ height: '4rem' }}
+      >
         <header className="text-center mb-1">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Wordle Solver
@@ -168,8 +176,8 @@ export default function App() {
         />
       </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-auto p-6">
+      {/* Scrollable Content, pushed below fixed header */}
+      <div className="flex-1 overflow-auto p-6 mt-16">
         {/* Guesses */}
         <section>
           <h2 className="mt-6 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2">
