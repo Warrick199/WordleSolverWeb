@@ -17,6 +17,7 @@ export default function App() {
   const firstGuess   = getBestGuess(solutions).split('')
   const initialTop5  = getTopGuesses(solutions, 5).map(w => w.split(''))
 
+  // React state
   const [possibleWords,   setPossibleWords]   = useState(solutions)
   const [correctRows,      setCorrectRows]     = useState([Array(WORD_LEN).fill('')])
   const [validRows,        setValidRows]       = useState([Array(WORD_LEN).fill('')])
@@ -26,32 +27,38 @@ export default function App() {
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // Handlers (unchanged) ...
+  // Handler: Next Guess
   const handleNextGuess = () => {
     if (solved) return
+
     const idx     = activeRow
     const guess   = guessRows[idx]
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
+    // filter solutions, fallback to validWords
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
+    // compute next guess and top 5
     const baseNext   = getBestGuess(filtered).split('')
+    // carry over greens
     const seededNext = baseNext.map((ltr, i) =>
       correct[i] ? correct[i] : ltr
     )
     const top5       = getTopGuesses(filtered, 5)
 
+    // append new rows
     setGuessRows(gr => [...gr, seededNext])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(top5.map(w => w.split('')))
   }
 
+  // Handler: Clear All
   const handleClearAll = () => {
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
@@ -60,6 +67,7 @@ export default function App() {
     setNextBestGuesses(initialTop5)
   }
 
+  // Handler: Clear Current Guess
   const handleClearCurrentGuess = () => {
     setGuessRows(gr =>
       gr.map((row, i) =>
@@ -68,7 +76,7 @@ export default function App() {
     )
   }
 
-  // Rendering helpers (unchanged) ...
+  // Render editable grid rows
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -120,6 +128,7 @@ export default function App() {
       </div>
     ))
 
+  // Render read-only Top Five grid
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -141,10 +150,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Sticky header with reduced height and centered content */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 px-4 flex flex-col justify-center">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 pt-4 pb-2 px-4 flex flex-col justify-center">
         <header className="text-center mb-1">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Wordle Solver
           </h1>
           <p className="mt-1 text-gray-500 dark:text-gray-400 text-sm">
@@ -159,7 +168,7 @@ export default function App() {
         />
       </div>
 
-      {/* Scrollable main content */}
+      {/* Scrollable Content */}
       <div className="flex-1 overflow-auto p-6">
         {/* Guesses */}
         <section>
