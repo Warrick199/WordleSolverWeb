@@ -10,45 +10,42 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // 1) Seed data
+  // Seed data
   const solutions   = initialPossibleWords()
   const validBank   = initialValidWords()
   const FIRST_GUESS = 'CRANE'.split('')
   const INITIAL_TOP5 = getTopGuesses(solutions, 5).map(w => w.split(''))
 
-  // 2) State
+  // State
   const [possibleWords, setPossibleWords] = useState(solutions)
   const [correctRows,    setCorrectRows]    = useState([Array(WORD_LEN).fill('')])
   const [validRows,      setValidRows]      = useState([Array(WORD_LEN).fill('')])
   const [guessRows,      setGuessRows]      = useState([FIRST_GUESS])
   const [nextBestGuesses,setNextBestGuesses] = useState(INITIAL_TOP5)
 
-  // 3) Next Guess handler
+  // Next Guess handler
   const handleNextGuess = () => {
     const idx     = guessRows.length - 1
     const guess   = guessRows[idx]
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // filter solutions, fallback to validBank
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
-    // compute next guess + top5
     const ng = getBestGuess(filtered).split('')
     const t5 = getTopGuesses(filtered, 5).map(w => w.split(''))
 
-    // append
     setGuessRows(gr => [...gr, ng])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(t5)
   }
 
-  // 4) Clear All = reset state like a fresh page
+  // Clear All handler
   const handleClearAll = () => {
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
@@ -57,18 +54,23 @@ export default function App() {
     setNextBestGuesses(INITIAL_TOP5)
   }
 
-  // 5) Render grids
+  // Renders editable grids; for guessRows, text is black in light & white in dark
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
-          const filled  = !!ltr
+          const filled = !!ltr
           const bgClass = filled
             ? fillColor
             : 'bg-transparent dark:bg-transparent border border-gray-400 dark:border-gray-600'
-          const txtCls  = filled
-            ? 'text-white'
-            : 'text-gray-900 dark:text-gray-100'
+          // If this is the guesses grid (gray fillColor), always black in light:
+          const isGuessGrid = fillColor.includes('gray-100')
+          const txtCls = isGuessGrid
+            ? 'text-gray-900 dark:text-gray-100'
+            : filled
+              ? 'text-white'
+              : 'text-gray-900 dark:text-gray-100'
+
           return (
             <input
               key={cIdx}
@@ -92,6 +94,7 @@ export default function App() {
       </div>
     ))
 
+  // Read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -119,10 +122,7 @@ export default function App() {
         </p>
       </header>
 
-      <Controls
-        onClearAll={handleClearAll}
-        onNextGuess={handleNextGuess}
-      />
+      <Controls onClearAll={handleClearAll} onNextGuess={handleNextGuess} />
 
       <h2 className="text-center font-semibold text-green-600 uppercase mb-2">
         Correct Letters
