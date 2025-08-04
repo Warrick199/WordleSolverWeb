@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 
 export default function Controls({ onNextGuess, onClearAll }) {
-  // start light (no .dark on <html>)
+  // start light mode by default
   const [dark, setDark] = useState(false)
 
   function toggleTheme() {
@@ -15,7 +15,7 @@ export default function Controls({ onNextGuess, onClearAll }) {
   }
 
   return (
-    <div className="flex justify-center items-center mt-4 space-x-4">
+    <div className="flex justify-center items-center mt-4 mb-6 space-x-4">
       <button
         onClick={onClearAll}
         className="px-4 py-2 bg-gray-700 text-white rounded"
