@@ -11,28 +11,24 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // 1) Load full solution and valid lists
-  const solutions   = initialPossibleWords()
-  const validBank   = initialValidWords()
+  // Seed data
+  const solutions    = initialPossibleWords()
+  const validBank    = initialValidWords()
+  const firstGuess   = getBestGuess(solutions).split('')
+  const initialTop5  = getTopGuesses(solutions, 5).map(w => w.split(''))
 
-  // 2) Compute dynamic first guess and initial top-5
-  const firstGuessWord = getBestGuess(solutions)            // e.g. "CRANE"
-  const initialTop5    = getTopGuesses(solutions, 5)        // e.g. ["CRANE","SLATE",...]
-
-  // 3) State
+  // State
   const [possibleWords,  setPossibleWords]   = useState(solutions)
   const [correctRows,     setCorrectRows]     = useState([Array(WORD_LEN).fill('')])
   const [validRows,       setValidRows]       = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,       setGuessRows]       = useState([firstGuessWord.split('')])
-  const [nextBestGuesses, setNextBestGuesses] = useState(
-    initialTop5.map(w => w.split(''))
-  )
+  const [guessRows,       setGuessRows]       = useState([firstGuess])
+  const [nextBestGuesses, setNextBestGuesses] = useState(initialTop5)
 
-  // 4) Helpers
+  // Active row and solved flag
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // 5) Handlers
+  // Handlers
   const handleNextGuess = () => {
     if (solved) return
 
@@ -41,46 +37,45 @@ export default function App() {
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // filter against solutions, fallback to validBank
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
-    // compute next guess and top-5
-    const nextWord = getBestGuess(filtered)
-    const top5     = getTopGuesses(filtered, 5)
+    const ng = getBestGuess(filtered).split('')
+    const t5 = getTopGuesses(filtered, 5).map(w => w.split(''))
 
-    // append rows
-    setGuessRows(gr => [...gr, nextWord.split('')])
+    setGuessRows(gr => [...gr, ng])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
-    setNextBestGuesses(top5.map(w => w.split('')))
+    setNextBestGuesses(t5)
   }
 
   const handleClearAll = () => {
-    // re-run dynamic logic just like a page refresh
-    const fg   = getBestGuess(solutions)
-    const t5   = getTopGuesses(solutions, 5)
-
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
     setValidRows([Array(WORD_LEN).fill('')])
-    setGuessRows([fg.split('')])
-    setNextBestGuesses(t5.map(w => w.split('')))
+    setGuessRows([firstGuess])
+    setNextBestGuesses(initialTop5)
   }
 
-  // 6) Rendering helpers
+  // Clear only the current guess row
+  const handleClearCurrentGuess = () => {
+    setGuessRows(gr =>
+      gr.map((row, i) => (i === activeRow ? Array(WORD_LEN).fill('') : row))
+    )
+  }
+
+  // Render editable grids with auto-advance and red highlight on active row
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
-          const filled  = !!ltr
-          const bgClass = filled
+          const filled     = !!ltr
+          const bgClass    = filled
             ? fillColor
             : 'bg-transparent dark:bg-transparent border border-gray-400 dark:border-gray-600'
-          // Guesses grid text always black in light, white in dark:
           const isGuessGrid = fillColor.includes('gray-100')
           const txtCls     = isGuessGrid
             ? 'text-gray-900 dark:text-gray-100'
@@ -102,6 +97,9 @@ export default function App() {
                 const copy = rows.map(r => [...r])
                 copy[rIdx][cIdx] = v
                 setRows(copy)
+                // move focus to next input
+                const next = e.target.nextElementSibling
+                if (next && next.tagName === 'INPUT') next.focus()
               }}
               className={`
                 ${bgClass} ${txtCls} ${highlight}
@@ -114,6 +112,7 @@ export default function App() {
       </div>
     ))
 
+  // Read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -132,7 +131,6 @@ export default function App() {
       </div>
     ))
 
-  // 7) Main render
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
@@ -162,6 +160,15 @@ export default function App() {
       <h2 className="text-center font-semibold text-gray-700 uppercase mb-2">
         Guesses
       </h2>
+      {/* Clear Current Guess button */}
+      <div className="flex justify-center mb-2">
+        <button
+          onClick={handleClearCurrentGuess}
+          className="px-2 py-1 text-sm bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded"
+        >
+          CLEAR CURRENT GUESS
+        </button>
+      </div>
       {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-100 dark:bg-gray-800')}
 
       <h2 className="text-center font-semibold text-blue-600 uppercase mb-2">
