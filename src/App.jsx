@@ -143,7 +143,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
       {/* Sticky header */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6">
+      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 pt-6 px-6 pb-4">
         <header className="text-center mb-4">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Wordle Solver
