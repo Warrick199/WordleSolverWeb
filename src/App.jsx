@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState } from 'react'
 import Controls from './components/Controls'
 import {
@@ -12,19 +11,19 @@ import {
 
 export default function App() {
   // Seed data
-  const solutions     = initialPossibleWords()
-  const validBank     = initialValidWords()
-  const FIRST_GUESS   = 'CRANE'.split('')
-  const INITIAL_TOP5  = getTopGuesses(solutions, 5).map(w => w.split(''))
+  const solutions    = initialPossibleWords()
+  const validBank    = initialValidWords()
+  const FIRST_GUESS  = 'CRANE'.split('')
+  const INITIAL_TOP5 = getTopGuesses(solutions, 5).map(w => w.split(''))
 
   // State
-  const [possibleWords, setPossibleWords] = useState(solutions)
-  const [correctRows,    setCorrectRows]   = useState([Array(WORD_LEN).fill('')])
-  const [validRows,      setValidRows]     = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,      setGuessRows]     = useState([FIRST_GUESS])
-  const [nextBestGuesses, setNextBestGuesses] = useState(INITIAL_TOP5)
+  const [possibleWords, setPossibleWords]       = useState(solutions)
+  const [correctRows,    setCorrectRows]         = useState([Array(WORD_LEN).fill('')])
+  const [validRows,      setValidRows]           = useState([Array(WORD_LEN).fill('')])
+  const [guessRows,      setGuessRows]           = useState([FIRST_GUESS])
+  const [nextBestGuesses, setNextBestGuesses]    = useState(INITIAL_TOP5)
 
-  // “Next Guess” handler
+  // Handlers
   const handleNextGuess = () => {
     const idx     = guessRows.length - 1
     const guess   = guessRows[idx]
@@ -46,7 +45,6 @@ export default function App() {
     setNextBestGuesses(t5)
   }
 
-  // “Clear All” resets exactly to page-load state
   const handleClearAll = () => {
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
@@ -55,47 +53,52 @@ export default function App() {
     setNextBestGuesses(INITIAL_TOP5)
   }
 
-  // Renders editable grids (Correct/Valid/Guesses)
-  const renderDynamicGrid = (rows, setRows, fillColor) =>
-    rows.map((letters, rIdx) => {
-      const isGuessGrid = fillColor.includes('gray-100')
-      return (
-        <div key={rIdx} className="flex justify-center my-2">
-          {letters.map((ltr, cIdx) => {
-            const filled  = !!ltr
-            const bgClass = filled
-              ? fillColor
-              : 'bg-transparent dark:bg-transparent border border-gray-400 dark:border-gray-600'
-            const txtCls = isGuessGrid
-              ? 'text-gray-900 dark:text-gray-100'
-              : filled
-                ? 'text-white'
-                : 'text-gray-900 dark:text-gray-100'
-            return (
-              <input
-                key={cIdx}
-                type="text"
-                maxLength={1}
-                value={ltr}
-                onChange={e => {
-                  const v    = e.target.value.toUpperCase()
-                  const copy = rows.map(r => [...r])
-                  copy[rIdx][cIdx] = v
-                  setRows(copy)
-                }}
-                className={`
-                  ${bgClass} ${txtCls}
-                  w-12 h-12 mx-1 text-xl font-bold uppercase
-                  text-center rounded
-                `}
-              />
-            )
-          })}
-        </div>
-      )
-    })
+  // Determine which row is active
+  const activeRow = guessRows.length - 1
 
-  // Read-only Next Best Guesses grid
+  // Renders editable grids (Correct, Valid, Guesses) with red border on active row
+  const renderDynamicGrid = (rows, setRows, fillColor) =>
+    rows.map((letters, rIdx) => (
+      <div key={rIdx} className="flex justify-center my-2">
+        {letters.map((ltr, cIdx) => {
+          const filled     = !!ltr
+          const bgClass    = filled
+            ? fillColor
+            : 'bg-transparent dark:bg-transparent border border-gray-400 dark:border-gray-600'
+          const isGuessGrid = fillColor.includes('gray-100')
+          const txtCls     = isGuessGrid
+            ? 'text-gray-900 dark:text-gray-100'
+            : filled
+              ? 'text-white'
+              : 'text-gray-900 dark:text-gray-100'
+          const highlight  = rIdx === activeRow
+            ? 'border-2 border-red-500'
+            : ''
+
+          return (
+            <input
+              key={cIdx}
+              type="text"
+              maxLength={1}
+              value={ltr}
+              onChange={e => {
+                const v    = e.target.value.toUpperCase()
+                const copy = rows.map(r => [...r])
+                copy[rIdx][cIdx] = v
+                setRows(copy)
+              }}
+              className={`
+                ${bgClass} ${txtCls} ${highlight}
+                w-12 h-12 mx-1 text-xl font-bold uppercase
+                text-center rounded
+              `}
+            />
+          )
+        })}
+      </div>
+    ))
+
+  // Read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -118,9 +121,7 @@ export default function App() {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
         <h1 className="text-2xl font-bold">Wordle Solver</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Messages Here
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">Messages Here</p>
       </header>
 
       <Controls
