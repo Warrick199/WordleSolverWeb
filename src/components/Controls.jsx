@@ -15,21 +15,44 @@ export default function Controls({ onNextGuess, onClearAll }) {
 
   return (
     <div className="flex justify-center items-center mt-4 mb-8 space-x-4">
+      {/* Clear All */}
       <button
         onClick={onClearAll}
-        className="px-6 py-2 bg-gray-800 text-white rounded-lg shadow hover:bg-gray-700 transition"
+        className="
+          h-8 px-4 text-sm uppercase
+          bg-gray-300 dark:bg-gray-700
+          text-gray-700 dark:text-gray-200
+          rounded-md shadow hover:bg-gray-400 dark:hover:bg-gray-600
+          transition
+        "
       >
-        Clear All
+        CLEAR ALL
       </button>
+
+      {/* Next Guess */}
       <button
         onClick={onNextGuess}
-        className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500 transition"
+        className="
+          h-8 px-4 text-sm uppercase
+          bg-gray-300 dark:bg-gray-700
+          text-gray-700 dark:text-gray-200
+          rounded-md shadow hover:bg-gray-400 dark:hover:bg-gray-600
+          transition
+        "
       >
-        Next Guess
+        NEXT GUESS
       </button>
+
+      {/* Theme Toggle */}
       <button
         onClick={toggleTheme}
-        className="p-3 bg-gray-200 dark:bg-gray-700 rounded-full shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+        className="
+          h-8 w-8 uppercase
+          bg-gray-300 dark:bg-gray-700
+          text-gray-700 dark:text-gray-200
+          rounded-md shadow hover:bg-gray-400 dark:hover:bg-gray-600
+          transition flex items-center justify-center
+        "
       >
         {dark ? '🌙' : '☀️'}
       </button>
