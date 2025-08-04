@@ -1,3 +1,14 @@
+/* src/index.css */
+
+/* 1) Pull in Open Sans from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+/* 2) Tailwind base + components + utilities */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 3) Ensure html uses the new font */
+html {
+  font-family: theme('fontFamily.sans');
+}
