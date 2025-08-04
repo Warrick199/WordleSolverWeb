@@ -115,7 +115,7 @@ export default function App() {
       </div>
     ))
 
-  // Next Best Guesses with same spacing
+  // Next Best Guesses: use same style as Guess boxes
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -123,9 +123,10 @@ export default function App() {
           <div
             key={cIdx}
             className="
-              bg-blue-600 text-white
+              bg-gray-300 dark:bg-gray-700
               w-12 h-12 mx-1 flex items-center justify-center
-              text-lg font-semibold uppercase rounded-md shadow
+              text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
+              rounded-md shadow-sm
             "
           >
             {ltr}
@@ -191,7 +192,7 @@ export default function App() {
 
         {/* Next Best Guesses */}
         <section>
-          <h2 className="mt-6 text-center font-semibold text-blue-600 uppercase mb-2">
+          <h2 className="mt-6 text-center font-semibold text-gray-900 dark:text-gray-100 uppercase mb-2">
             Next Best Guesses
           </h2>
           {renderReadOnlyGrid(nextBestGuesses)}
