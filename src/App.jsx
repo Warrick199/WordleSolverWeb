@@ -11,24 +11,24 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // Seed data
-  const solutions    = initialPossibleWords()
-  const validBank    = initialValidWords()
-  const firstGuess   = getBestGuess(solutions).split('')
-  const initialTop5  = getTopGuesses(solutions, 5).map(w => w.split(''))
+  // 1) Load word lists & compute initial guesses
+  const solutions   = initialPossibleWords()
+  const validBank   = initialValidWords()
+  const firstGuess  = getBestGuess(solutions).split('')
+  const initialTop5 = getTopGuesses(solutions, 5).map(w => w.split(''))
 
-  // State
+  // 2) State
   const [possibleWords,  setPossibleWords]   = useState(solutions)
   const [correctRows,     setCorrectRows]     = useState([Array(WORD_LEN).fill('')])
   const [validRows,       setValidRows]       = useState([Array(WORD_LEN).fill('')])
   const [guessRows,       setGuessRows]       = useState([firstGuess])
   const [nextBestGuesses, setNextBestGuesses] = useState(initialTop5)
 
-  // Active row and solved flag
+  // 3) Track active row & solved flag
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // Handlers
+  // 4) Handlers
   const handleNextGuess = () => {
     if (solved) return
     const idx     = activeRow
@@ -59,14 +59,13 @@ export default function App() {
     setNextBestGuesses(initialTop5)
   }
 
-  // Clear only the current guess row
   const handleClearCurrentGuess = () => {
     setGuessRows(gr =>
       gr.map((row, i) => (i === activeRow ? Array(WORD_LEN).fill('') : row))
     )
   }
 
-  // Render editable grids with auto-advance and persistent red border on active row
+  // 5) Render editable grids with auto‐advance & backspace navigation
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -81,7 +80,6 @@ export default function App() {
             : filled
               ? 'text-white'
               : 'text-gray-900 dark:text-gray-100'
-          // always include a dark-mode red border on active row
           const highlight  = rIdx === activeRow
             ? 'border-2 border-red-500 dark:border-red-500'
             : ''
@@ -92,11 +90,25 @@ export default function App() {
               type="text"
               maxLength={1}
               value={ltr}
+              onKeyDown={e => {
+                if (e.key === 'Backspace') {
+                  e.preventDefault()
+                  const copy = rows.map(r => [...r])
+                  if (cIdx > 0) {
+                    // clear & focus previous
+                    copy[rIdx][cIdx - 1] = ''
+                    setRows(copy)
+                    const prev = e.target.previousElementSibling
+                    if (prev && prev.tagName === 'INPUT') prev.focus()
+                  }
+                }
+              }}
               onChange={e => {
                 const v    = e.target.value.toUpperCase()
                 const copy = rows.map(r => [...r])
                 copy[rIdx][cIdx] = v
                 setRows(copy)
+                // move focus to next
                 const next = e.target.nextElementSibling
                 if (next && next.tagName === 'INPUT') next.focus()
               }}
@@ -111,7 +123,7 @@ export default function App() {
       </div>
     ))
 
-  // Read-only Next Best Guesses
+  // 6) Read‐only Next Best Guesses
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -130,15 +142,13 @@ export default function App() {
       </div>
     ))
 
+  // 7) Render
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900
-                    text-gray-900 dark:text-gray-100 p-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
         <h1 className="text-2xl font-bold">Wordle Solver</h1>
         <p className="text-gray-600 dark:text-gray-400">
-          {solved
-            ? `Well done! You solved it in ${guessRows.length} guesses 😊`
-            : ''}
+          {solved ? `Well done! You solved it in ${guessRows.length} guesses 😊` : ''}
         </p>
       </header>
 
