@@ -190,10 +190,10 @@ export default function App() {
           {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700')}
         </section>
 
-        {/* Next Best Guesses */}
+        {/* Top Five Guesses */}
         <section>
           <h2 className="mt-6 text-center font-semibold text-gray-900 dark:text-gray-100 uppercase mb-2">
-            Next Best Guesses
+            Top Five Guesses
           </h2>
           {renderReadOnlyGrid(nextBestGuesses)}
         </section>
