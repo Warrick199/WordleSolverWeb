@@ -31,7 +31,6 @@ export default function App() {
   // Handlers
   const handleNextGuess = () => {
     if (solved) return
-
     const idx     = activeRow
     const guess   = guessRows[idx]
     const correct = correctRows[idx]
@@ -67,7 +66,7 @@ export default function App() {
     )
   }
 
-  // Render editable grids with auto-advance and red highlight on active row
+  // Render editable grids with auto-advance and persistent red border on active row
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -82,8 +81,9 @@ export default function App() {
             : filled
               ? 'text-white'
               : 'text-gray-900 dark:text-gray-100'
+          // always include a dark-mode red border on active row
           const highlight  = rIdx === activeRow
-            ? 'border-2 border-red-500'
+            ? 'border-2 border-red-500 dark:border-red-500'
             : ''
 
           return (
@@ -97,7 +97,6 @@ export default function App() {
                 const copy = rows.map(r => [...r])
                 copy[rIdx][cIdx] = v
                 setRows(copy)
-                // move focus to next input
                 const next = e.target.nextElementSibling
                 if (next && next.tagName === 'INPUT') next.focus()
               }}
@@ -132,7 +131,8 @@ export default function App() {
     ))
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900
+                    text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
         <h1 className="text-2xl font-bold">Wordle Solver</h1>
         <p className="text-gray-600 dark:text-gray-400">
@@ -160,7 +160,6 @@ export default function App() {
       <h2 className="text-center font-semibold text-gray-700 uppercase mb-2">
         Guesses
       </h2>
-      {/* Clear Current Guess button */}
       <div className="flex justify-center mb-2">
         <button
           onClick={handleClearCurrentGuess}
