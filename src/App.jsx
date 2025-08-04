@@ -65,7 +65,7 @@ export default function App() {
     )
   }
 
-  // 5) Render editable grids with auto‐advance & backspace navigation
+  // 5) Render editable grids with auto‐advance & backspace/delete navigation
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -91,13 +91,14 @@ export default function App() {
               maxLength={1}
               value={ltr}
               onKeyDown={e => {
-                if (e.key === 'Backspace') {
+                if (e.key === 'Backspace' || e.key === 'Delete') {
                   e.preventDefault()
                   const copy = rows.map(r => [...r])
+                  // clear current box
+                  copy[rIdx][cIdx] = ''
+                  setRows(copy)
+                  // move focus to previous box
                   if (cIdx > 0) {
-                    // clear & focus previous
-                    copy[rIdx][cIdx - 1] = ''
-                    setRows(copy)
                     const prev = e.target.previousElementSibling
                     if (prev && prev.tagName === 'INPUT') prev.focus()
                   }
@@ -123,7 +124,7 @@ export default function App() {
       </div>
     ))
 
-  // 6) Read‐only Next Best Guesses
+  // 6) Read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -144,7 +145,8 @@ export default function App() {
 
   // 7) Render
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900
+                    text-gray-900 dark:text-gray-100 p-4">
       <header className="text-center mb-6">
         <h1 className="text-2xl font-bold">Wordle Solver</h1>
         <p className="text-gray-600 dark:text-gray-400">
@@ -162,7 +164,7 @@ export default function App() {
       </h2>
       {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-600')}
 
-      <h2 className="text-center font-semibold text-yellow-500 uppercase mb-2">
+      <h2 className="text-center font-semibold text-yellow-500 uppercase mb-6">
         Valid Letters
       </h2>
       {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
