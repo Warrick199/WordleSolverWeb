@@ -63,7 +63,7 @@ export default function App() {
     )
   }
 
-  // Dynamic grid for Correct / Valid / Guesses
+  // Renders each 5-letter grid
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -115,7 +115,7 @@ export default function App() {
       </div>
     ))
 
-  // Next Best Guesses: same flex + mx-1 spacing as above
+  // Next Best Guesses with same spacing
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -153,6 +153,7 @@ export default function App() {
           onNextGuess={handleNextGuess}
         />
 
+        {/* Correct Letters */}
         <section>
           <h2 className="text-center font-semibold text-green-600 uppercase mb-2">
             Correct Letters
@@ -160,15 +161,17 @@ export default function App() {
           {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
         </section>
 
+        {/* Valid Letters */}
         <section>
-          <h2 className="text-center font-semibold text-yellow-500 uppercase mb-2">
+          <h2 className="mt-6 text-center font-semibold text-yellow-500 uppercase mb-2">
             Valid Letters
           </h2>
           {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
         </section>
 
+        {/* Guesses */}
         <section>
-          <h2 className="text-center font-semibold text-gray-700 uppercase mb-2">
+          <h2 className="mt-6 text-center font-semibold text-gray-700 uppercase mb-2">
             Guesses
           </h2>
           <div className="flex justify-center mb-4">
@@ -186,8 +189,9 @@ export default function App() {
           {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700')}
         </section>
 
+        {/* Next Best Guesses */}
         <section>
-          <h2 className="text-center font-semibold text-blue-600 uppercase mb-2">
+          <h2 className="mt-6 text-center font-semibold text-blue-600 uppercase mb-2">
             Next Best Guesses
           </h2>
           {renderReadOnlyGrid(nextBestGuesses)}
