@@ -34,19 +34,27 @@ export default function App() {
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
+    // filter against solutions, fallback to validBank
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
-    const ng = getBestGuess(filtered).split('')
-    const t5 = getTopGuesses(filtered, 5).map(w => w.split(''))
+    // compute base next guess and top-5
+    const baseNext = getBestGuess(filtered).split('')
+    const top5     = getTopGuesses(filtered, 5)
 
-    setGuessRows(gr => [...gr, ng])
+    // seed the new guess with any already-entered correct letters
+    const seededNext = baseNext.map((ltr, i) =>
+      correct[i] ? correct[i] : ltr
+    )
+
+    // append rows
+    setGuessRows(gr => [...gr, seededNext])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
-    setNextBestGuesses(t5)
+    setNextBestGuesses(top5.map(w => w.split('')))
   }
 
   const handleClearAll = () => {
@@ -63,7 +71,7 @@ export default function App() {
     )
   }
 
-  // Renders each 5-letter grid
+  // Render a 5-letter grid
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -115,7 +123,7 @@ export default function App() {
       </div>
     ))
 
-  // Next Best Guesses: same style as Guess boxes
+  // Top Five read-only grid
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
