@@ -3,7 +3,7 @@ import wordsData from '../../words.json'
 
 export const WORD_LEN = 5
 
-// Load solution and valid-word lists from your JSON
+// Load your solutions and validWords lists
 export function solutionsList() {
   return Array.isArray(wordsData.solutions)
     ? wordsData.solutions.map(w => w.toUpperCase())
@@ -16,49 +16,58 @@ export function validWordsList() {
     : []
 }
 
-// Initial “possible” = solutions
+// Initial pools
 export function initialPossibleWords() {
   return solutionsList()
 }
-
-// Fallback list if solutions filter yields none
 export function initialValidWords() {
   return validWordsList()
 }
 
 /**
  * Filter possibleWords given:
- *  - guess:    Array<string> of your last guess
- *  - corrects: Array<string> of greens (correct position) or ''
- *  - valids:   Array<string> of yellows (present but wrong position) or ''
+ *   guess:    Array<string> (last guess)
+ *   corrects: Array<string> of greens (correct position) or ''
+ *   valids:   Array<string> of yellows (present but wrong position) or ''
  */
 export function filterPossibleWords(possibleWords, guess, corrects, valids) {
-  const greens  = corrects.map(c => c.toUpperCase())
-  const yellows = valids.map(c => c.toUpperCase()).filter(c => c)
+  const guessArr   = guess.map(c => c.toUpperCase())
+  const greensArr  = corrects.map(c => c.toUpperCase())
+  const yellowsArr = valids.map(c => c.toUpperCase())
+
+  // Grey letters: guessed letters neither green nor yellow
+  const greySet = new Set(
+    guessArr.filter((c,i) => c && greensArr[i] !== c && yellowsArr[i] !== c)
+  )
 
   return possibleWords.filter(w => {
-    // 1) Greens: letter must match exactly at each green position
+    // 1) Greens: exact matches
     for (let i = 0; i < WORD_LEN; i++) {
-      if (greens[i] && w[i] !== greens[i]) {
+      if (greensArr[i] && w[i] !== greensArr[i]) {
         return false
       }
     }
 
-    // 2) Yellows: each yellow letter must appear somewhere, but not at the same index
+    // 2) Yellows: must include, but not at the same index
     for (let i = 0; i < WORD_LEN; i++) {
-      if (yellows[i]) {
-        if (!w.includes(yellows[i]))       return false
-        if (w[i] === yellows[i])           return false
+      const y = yellowsArr[i]
+      if (y) {
+        if (!w.includes(y)) return false
+        if (w[i] === y)     return false
       }
     }
 
-    // 3) All other letters unconstrained until explicitly marked
+    // 3) Greys: must exclude entirely
+    for (const g of greySet) {
+      if (w.includes(g)) return false
+    }
+
     return true
   })
 }
 
 /**
- * Score words by sum of letter‐frequency across the remaining pool.
+ * Score words by letter-frequency in the remaining pool.
  * Returns an array of words sorted descending by score.
  */
 export function scoreWords(possibleWords) {
@@ -68,18 +77,17 @@ export function scoreWords(possibleWords) {
       freqs[c] = (freqs[c] || 0) + 1
     )
   )
-
   return possibleWords
     .map(w => ({
       word:  w,
       score: Array.from(new Set(w))
-                  .reduce((sum, c) => sum + freqs[c], 0)
+                   .reduce((sum, c) => sum + freqs[c], 0)
     }))
     .sort((a, b) => b.score - a.score)
     .map(x => x.word)
 }
 
-// Top‐scoring single best guess
+// Top-scoring best guess
 export function getBestGuess(possibleWords) {
   return scoreWords(possibleWords)[0] || ''
 }
