@@ -2,7 +2,6 @@
 import React, { useState } from 'react'
 
 export default function Controls({ onNextGuess, onClearAll }) {
-  // start light mode by default
   const [dark, setDark] = useState(false)
 
   function toggleTheme() {
@@ -15,22 +14,22 @@ export default function Controls({ onNextGuess, onClearAll }) {
   }
 
   return (
-    <div className="flex justify-center items-center mt-4 mb-6 space-x-4">
+    <div className="flex justify-center items-center mt-4 mb-8 space-x-4">
       <button
         onClick={onClearAll}
-        className="px-4 py-2 bg-gray-700 text-white rounded"
+        className="px-6 py-2 bg-gray-800 text-white rounded-lg shadow hover:bg-gray-700 transition"
       >
         Clear All
       </button>
       <button
         onClick={onNextGuess}
-        className="px-4 py-2 bg-blue-500 text-white rounded"
+        className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500 transition"
       >
         Next Guess
       </button>
       <button
         onClick={toggleTheme}
-        className="p-2 bg-gray-200 dark:bg-gray-700 rounded-full"
+        className="p-3 bg-gray-200 dark:bg-gray-700 rounded-full shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition"
       >
         {dark ? '🌙' : '☀️'}
       </button>
