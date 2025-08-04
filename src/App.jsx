@@ -11,62 +11,48 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // 1) Seed lists & first guess
+  // 1) Load initial pools and first guess
   const solutions   = initialPossibleWords()
   const validWords  = initialValidWords()
-  const FIRST_GUESS = 'CRANE'.split('')
+  const firstGuess  = getBestGuess(solutions).split('')
+  const firstTop5   = getTopGuesses(solutions, 5).map(w => w.split(''))
 
-  // 2) React state
+  // 2) State
   const [possibleWords, setPossibleWords] = useState(solutions)
-  const [correctRows,    setCorrectRows]    = useState([Array(WORD_LEN).fill('')])
-  const [validRows,      setValidRows]      = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,      setGuessRows]      = useState([FIRST_GUESS])
-  const [nextBestGuesses, setNextBestGuesses] = useState([
-    FIRST_GUESS,
-    Array(WORD_LEN).fill(''),
-    Array(WORD_LEN).fill(''),
-    Array(WORD_LEN).fill(''),
-    Array(WORD_LEN).fill('')
-  ])
+  const [correctRows,     setCorrectRows]   = useState([Array(WORD_LEN).fill('')])
+  const [validRows,       setValidRows]     = useState([Array(WORD_LEN).fill('')])
+  const [guessRows,       setGuessRows]     = useState([firstGuess])
+  const [nextBestGuesses, setNextBestGuesses] = useState(firstTop5)
 
-  // 3) Handler: Next Guess
+  // 3) Next Guess handler
   const handleNextGuess = () => {
     const idx     = guessRows.length - 1
     const guess   = guessRows[idx]
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // a) filter against solutions list or fallback
+    // filter, with fallback to validWords if no solutions remain
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
-    if (filtered.length === 0) {
-      filtered = filterPossibleWords(validWords, guess, correct, valid)
-    }
+    if (filtered.length === 0) filtered = filterPossibleWords(validWords, guess, correct, valid)
     setPossibleWords(filtered)
 
-    // b) compute next guess + top5
-    const nextWord = getBestGuess(filtered)
-    const top5     = getTopGuesses(filtered, 5)
+    // compute next guess + top5
+    const ng = getBestGuess(filtered).split('')
+    const t5 = getTopGuesses(filtered, 5).map(w => w.split(''))
 
-    // c) append rows
-    setGuessRows(gr => [...gr, nextWord.split('')])
+    // append rows
+    setGuessRows(gr => [...gr, ng])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
-    setNextBestGuesses(top5.map(w => w.split('')))
+    setNextBestGuesses(t5)
   }
 
-  // 4) Handler: Clear All
+  // 4) Clear All = full page reload
   const handleClearAll = () => {
-    const fg   = getBestGuess(solutions)
-    const t5   = getTopGuesses(solutions, 5)
-
-    setPossibleWords(solutions)
-    setCorrectRows([Array(WORD_LEN).fill('')])
-    setValidRows([Array(WORD_LEN).fill('')])
-    setGuessRows([fg.split('')])
-    setNextBestGuesses(t5.map(w => w.split('')))
+    window.location.reload()
   }
 
-  // 5) Render a grid where cells colour only when filled
+  // 5) Render editable grid (colours on entry)
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, r) => (
       <div key={r} className="flex justify-center my-2">
@@ -102,7 +88,7 @@ export default function App() {
       </div>
     ))
 
-  // 6) Read-only Next Best Guesses grid
+  // 6) Render read-only Next Best Guesses
   const renderReadOnlyGrid = rows =>
     rows.map((letters, r) => (
       <div key={r} className="flex justify-center my-2">
