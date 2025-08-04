@@ -68,4 +68,4 @@ Error generating stack: `+o.message+`
                 px-3 py-1 text-sm bg-gray-300 dark:bg-gray-700
                 text-gray-700 dark:text-gray-200 rounded-md
                 hover:bg-gray-400 dark:hover:bg-gray-600 transition
-              `,children:"CLEAR CURRENT GUESS"})}),d(h,m,"bg-gray-300 dark:bg-gray-700")]}),xt("section",{children:[Z("h2",{className:"mt-6 text-center font-semibold text-gray-900 dark:text-gray-100 uppercase mb-2",children:"Next Best Guesses"}),y(p)]})]})})}Zl.createRoot(document.getElementById("root")).render(Z(Hd,{}));
+              `,children:"CLEAR CURRENT GUESS"})}),d(h,m,"bg-gray-300 dark:bg-gray-700")]}),xt("section",{children:[Z("h2",{className:"mt-6 text-center font-semibold text-gray-900 dark:text-gray-100 uppercase mb-2",children:"Top Five Guesses"}),y(p)]})]})})}Zl.createRoot(document.getElementById("root")).render(Z(Hd,{}));
