@@ -11,6 +11,7 @@ import {
 } from './lib/solver'
 
 export default function App() {
+  // Seed & initial solver state
   const solutions    = initialPossibleWords()
   const validBank    = initialValidWords()
   const firstGuess   = getBestGuess(solutions).split('')
@@ -25,6 +26,7 @@ export default function App() {
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
+  // Handlers
   const handleNextGuess = () => {
     if (solved) return
     const idx     = activeRow
@@ -61,14 +63,15 @@ export default function App() {
     )
   }
 
+  // Renders each 5-letter grid
   const renderDynamicGrid = (rows, setRows, fillColor) =>
     rows.map((letters, rIdx) => (
-      <div key={rIdx} className="flex justify-center my-2">
+      <div key={rIdx} className="flex justify-center mb-4">
         {letters.map((ltr, cIdx) => {
           const filled     = !!ltr
           const bgClass    = filled
             ? fillColor
-            : 'bg-transparent dark:bg-transparent border border-gray-400 dark:border-gray-600'
+            : 'bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-600'
           const isGuessGrid = fillColor.includes('gray-100')
           const txtCls     = isGuessGrid
             ? 'text-gray-900 dark:text-gray-100'
@@ -76,7 +79,7 @@ export default function App() {
               ? 'text-white'
               : 'text-gray-900 dark:text-gray-100'
           const highlight  = rIdx === activeRow
-            ? 'border-2 border-red-500 dark:border-red-500'
+            ? 'ring-2 ring-red-500'
             : ''
 
           return (
@@ -93,7 +96,7 @@ export default function App() {
                   setRows(copy)
                   if (cIdx > 0) {
                     const prev = e.target.previousElementSibling
-                    if (prev && prev.tagName === 'INPUT') prev.focus()
+                    prev?.focus()
                   }
                 }
               }}
@@ -103,12 +106,12 @@ export default function App() {
                 copy[rIdx][cIdx] = v
                 setRows(copy)
                 const next = e.target.nextElementSibling
-                if (next && next.tagName === 'INPUT') next.focus()
+                next?.focus()
               }}
               className={`
                 ${bgClass} ${txtCls} ${highlight}
-                w-12 h-12 mx-1 text-xl font-bold uppercase
-                text-center rounded
+                w-12 h-12 mx-1 text-lg font-semibold uppercase
+                text-center rounded-md shadow-sm transition
               `}
             />
           )
@@ -116,62 +119,86 @@ export default function App() {
       </div>
     ))
 
-  const renderReadOnlyGrid = rows =>
-    rows.map((letters, rIdx) => (
-      <div key={rIdx} className="flex justify-center my-2">
-        {letters.map((ltr, cIdx) => (
-          <div
-            key={cIdx}
-            className="
-              bg-blue-600 text-white
-              w-12 h-12 mx-1 text-xl font-bold uppercase
-              flex items-center justify-center rounded
-            "
-          >
-            {ltr || ''}
-          </div>
-        ))}
-      </div>
-    ))
+  const renderReadOnlyGrid = rows => (
+    <div className="grid grid-cols-5 gap-3 justify-center mb-6">
+      {rows.flat().map((ltr, i) => (
+        <div
+          key={i}
+          className="
+            bg-blue-600 text-white
+            w-12 h-12 flex items-center justify-center
+            text-lg font-semibold uppercase rounded-md shadow
+          "
+        >
+          {ltr || ''}
+        </div>
+      ))}
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
-      <header className="text-center mb-6">
-        <h1 className="text-2xl font-bold">Wordle Solver</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {solved ? `Well done! You solved it in ${guessRows.length} guesses 😊` : ''}
-        </p>
-      </header>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
+      <div className="mx-auto max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+        <header className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Wordle Solver
+          </h1>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
+            {solved
+              ? `Well done! You solved it in ${guessRows.length} guesses 😊`
+              : ''}
+          </p>
+        </header>
 
-      <Controls onClearAll={handleClearAll} onNextGuess={handleNextGuess} />
+        <Controls
+          onClearAll={handleClearAll}
+          onNextGuess={handleNextGuess}
+        />
 
-      <h2 className="text-center font-semibold text-green-600 uppercase mb-2">
-        Correct Letters
-      </h2>
-      {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-600')}
+        {/* Correct Letters */}
+        <section>
+          <h2 className="text-center font-semibold text-green-600 uppercase mb-2">
+            Correct Letters
+          </h2>
+          {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
+        </section>
 
-      <h2 className="text-center font-semibold text-yellow-500 uppercase mb-2">
-        Valid Letters
-      </h2>
-      {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
+        {/* Valid Letters */}
+        <section>
+          <h2 className="text-center font-semibold text-yellow-500 uppercase mb-2">
+            Valid Letters
+          </h2>
+          {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
+        </section>
 
-      <h2 className="text-center font-semibold text-gray-700 uppercase mb-2">
-        Guesses
-      </h2>
-      <div className="flex justify-center mb-2">
-        <button
-          onClick={handleClearCurrentGuess}
-          className="px-2 py-1 text-sm bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded"
-        >
-          CLEAR CURRENT GUESS
-        </button>
+        {/* Guesses */}
+        <section>
+          <h2 className="text-center font-semibold text-gray-700 uppercase mb-2">
+            Guesses
+          </h2>
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={handleClearCurrentGuess}
+              className="
+                px-3 py-1 text-sm bg-gray-300 dark:bg-gray-700
+                text-gray-700 dark:text-gray-200 rounded-md
+                hover:bg-gray-400 dark:hover:bg-gray-600 transition
+              "
+            >
+              CLEAR CURRENT GUESS
+            </button>
+          </div>
+          {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-200 dark:bg-gray-700')}
+        </section>
+
+        {/* Next Best Guesses */}
+        <section>
+          <h2 className="text-center font-semibold text-blue-600 uppercase mb-2">
+            Next Best Guesses
+          </h2>
+          {renderReadOnlyGrid(nextBestGuesses)}
+        </section>
       </div>
-      {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-100 dark:bg-gray-800')}
-
-      <h2 className="text-center font-semibold text-blue-600 uppercase mb-2">
-        Next Best Guesses
-      </h2>
-      {renderReadOnlyGrid(nextBestGuesses)}
     </div>
   )
 }
