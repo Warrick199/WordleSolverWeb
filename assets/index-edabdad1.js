@@ -61,13 +61,14 @@ Error generating stack: `+o.message+`
                 text-center rounded-md shadow-sm transition
               `},le)})},B)),C=w=>w.map((E,x)=>{const O=E.join("");return ee("div",{role:"button",tabIndex:0,onClick:()=>d(O),onKeyDown:z=>{(z.key==="Enter"||z.key===" ")&&(z.preventDefault(),d(O))},className:`
             flex justify-center my-2 cursor-pointer group
-            focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md
+            outline-none focus:outline-none
           `,"aria-label":`Use top guess ${O}`,title:`Use ${O} as current guess`,children:E.map((z,B)=>ee("div",{className:`
                 bg-gray-300 dark:bg-gray-700
                 w-12 h-12 mx-1 flex items-center justify-center
                 text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
                 rounded-md shadow-sm transition
                 group-hover:ring-2 group-hover:ring-indigo-500
+                group-focus:ring-2 group-focus:ring-indigo-500
               `,children:z},B))},x)});return Ge("div",{className:"min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900",children:[Ge("div",{className:"sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 pt-1 pb-1",children:[Ge("header",{className:"text-center mb-0",children:[ee("h1",{className:"text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight",children:"Wordle Solver"}),S&&ee("p",{className:"mt-0.5 text-gray-500 dark:text-gray-400 text-sm",children:`Well done! You solved it in ${h.length} guesses 😊`})]}),ee(Id,{onClearAll:f,onNextGuess:M})]}),Ge("div",{className:"flex-1 overflow-auto pt-3 px-6 pb-6",children:[Ge("section",{children:[ee("h2",{className:"mt-3 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2",children:"GUESSES"}),ee("div",{className:"flex justify-center mb-4",children:ee("button",{onClick:a,className:`
                 px-3 py-1 text-sm bg-gray-300 dark:bg-gray-700
                 text-gray-700 dark:text-gray-200 rounded-md
