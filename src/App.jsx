@@ -27,7 +27,7 @@ export default function App() {
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // Handler: Next Guess (carries over greens)
+  // Handler: Next Guess (seeds next guess + carries forward greens into next Correct row)
   const handleNextGuess = () => {
     if (solved) return
 
@@ -36,18 +36,23 @@ export default function App() {
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
+    // Filter pool
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
+    // Next guess + Top 5
     const baseNext   = getBestGuess(filtered).split('')
     const seededNext = baseNext.map((ltr, i) => (correct[i] ? correct[i] : ltr))
     const top5       = getTopGuesses(filtered, 5)
 
+    // Append rows
     setGuessRows(gr => [...gr, seededNext])
-    setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
+    // NEW: carry current greens into the next Correct row
+    const carryGreens = [...correct]
+    setCorrectRows(cr => [...cr, carryGreens])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(top5.map(w => w.split('')))
   }
@@ -166,7 +171,7 @@ export default function App() {
       </div>
     ))
 
-  // Read-only Top Five grid — clickable rows; remove row-level blue ring
+  // Read-only Top Five grid — clickable rows; highlight only tiles (not full row)
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => {
       const word = letters.join('')
@@ -181,7 +186,6 @@ export default function App() {
               e.preventDefault(); applyTopGuess(word)
             }
           }}
-          // NOTE: removed focus:ring-* from the ROW; keep it focusable for a11y
           className="
             flex justify-center my-2 cursor-pointer group
             outline-none focus:outline-none
