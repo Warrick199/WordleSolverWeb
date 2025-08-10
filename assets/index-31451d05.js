@@ -64,7 +64,14 @@ Error generating stack: `+o.message+`
               w-12 h-12 mx-1 flex items-center justify-center
               text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
               rounded-md shadow-sm transition
-            `,children:N},O))},E));return Be("div",{className:"min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900",children:[Be("div",{className:"sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 pt-4 pb-2 px-4 flex flex-col justify-center",children:[Be("header",{className:"text-center mb-1",children:[J("h1",{className:"text-3xl font-bold text-gray-900 dark:text-gray-100",children:"Wordle Solver"}),J("p",{className:"mt-1 text-gray-500 dark:text-gray-400 text-sm",children:x?`Well done! You solved it in ${h.length} guesses 😊`:""})]}),J(Id,{onClearAll:f,onNextGuess:M})]}),Be("div",{className:"flex-1 overflow-auto p-6",children:[Be("section",{children:[J("h2",{className:"mt-6 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2",children:"GUESSES"}),J("div",{className:"flex justify-center mb-4",children:J("button",{onClick:a,className:`
+            `,children:N},O))},E));return Be("div",{className:"min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900",children:[Be("div",{className:`
+          sticky top-0 z-20
+          bg-white dark:bg-gray-800
+          border-b border-gray-200 dark:border-gray-700
+          px-3 sm:px-4
+          pt-2 pb-1 sm:pt-3 sm:pb-2
+          flex flex-col justify-center
+        `,children:[Be("header",{className:"text-center mb-1",children:[J("h1",{className:"text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight",children:"Wordle Solver"}),J("p",{className:"mt-0.5 text-gray-500 dark:text-gray-400 text-xs sm:text-sm",children:x?`Well done! You solved it in ${h.length} guesses 😊`:""})]}),J(Id,{onClearAll:f,onNextGuess:M})]}),Be("div",{className:"flex-1 overflow-auto p-6",children:[Be("section",{children:[J("h2",{className:"mt-6 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2",children:"GUESSES"}),J("div",{className:"flex justify-center mb-4",children:J("button",{onClick:a,className:`
                 px-3 py-1 text-sm bg-gray-300 dark:bg-gray-700
                 text-gray-700 dark:text-gray-200 rounded-md
                 hover:bg-gray-400 dark:hover:bg-gray-600 transition
