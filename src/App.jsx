@@ -11,23 +11,23 @@ import {
 } from './lib/solver'
 
 export default function App() {
-  // 1) Seed & initial solver state
-  const solutions   = initialPossibleWords()
-  const validBank   = initialValidWords()
-  const firstGuess  = getBestGuess(solutions).split('')
-  const initialTop5 = getTopGuesses(solutions, 5).map(w => w.split(''))
+  // Seed & initial solver state
+  const solutions    = initialPossibleWords()
+  const validBank    = initialValidWords()
+  const firstGuess   = getBestGuess(solutions).split('')
+  const initialTop5  = getTopGuesses(solutions, 5).map(w => w.split(''))
 
-  // 2) React state
-  const [possibleWords,  setPossibleWords]   = useState(solutions)
-  const [correctRows,     setCorrectRows]     = useState([Array(WORD_LEN).fill('')])
-  const [validRows,       setValidRows]       = useState([Array(WORD_LEN).fill('')])
-  const [guessRows,       setGuessRows]       = useState([firstGuess])
-  const [nextBestGuesses, setNextBestGuesses] = useState(initialTop5)
+  // React state
+  const [possibleWords,   setPossibleWords]   = useState(solutions)
+  const [correctRows,      setCorrectRows]     = useState([Array(WORD_LEN).fill('')])
+  const [validRows,        setValidRows]       = useState([Array(WORD_LEN).fill('')])
+  const [guessRows,        setGuessRows]       = useState([firstGuess])
+  const [nextBestGuesses,  setNextBestGuesses] = useState(initialTop5)
 
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // 3) Handlers
+  // Handler: Next Guess (carries over greens)
   const handleNextGuess = () => {
     if (solved) return
 
@@ -36,28 +36,25 @@ export default function App() {
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // filter solutions, fallback to validBank
+    // filter solutions, fallback to validWords
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
-    // compute next guess and top-5
+    // compute next guess and top 5, then seed with greens from previous row
     const baseNext   = getBestGuess(filtered).split('')
-    // seed with any green letters already entered
-    const seededNext = baseNext.map((ltr, i) =>
-      correct[i] ? correct[i] : ltr
-    )
+    const seededNext = baseNext.map((ltr, i) => (correct[i] ? correct[i] : ltr))
     const top5       = getTopGuesses(filtered, 5)
 
-    // append rows
     setGuessRows(gr => [...gr, seededNext])
     setCorrectRows(cr => [...cr, Array(WORD_LEN).fill('')])
     setValidRows(vr => [...vr, Array(WORD_LEN).fill('')])
     setNextBestGuesses(top5.map(w => w.split('')))
   }
 
+  // Handler: Clear All (reset to initial)
   const handleClearAll = () => {
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
@@ -66,6 +63,7 @@ export default function App() {
     setNextBestGuesses(initialTop5)
   }
 
+  // Handler: Clear Current Guess
   const handleClearCurrentGuess = () => {
     setGuessRows(gr =>
       gr.map((row, i) =>
@@ -74,8 +72,14 @@ export default function App() {
     )
   }
 
-  // 4) Render helpers
-  const renderDynamicGrid = (rows, setRows, fillColor) =>
+  /**
+   * Render editable 5-letter grid
+   * role: 'guess' | 'correct' | 'valid'
+   * - When role is 'correct' or 'valid' and the user focuses a cell in the ACTIVE row,
+   *   we auto-fill that cell with the letter from the current guess in the same column
+   *   (only if the cell is empty) — per your new input method.
+   */
+  const renderDynamicGrid = (rows, setRows, fillColor, role) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
@@ -99,6 +103,17 @@ export default function App() {
               type="text"
               maxLength={1}
               value={ltr}
+              onFocus={() => {
+                // Auto-fill from current guess when focusing correct/valid cells in the active row
+                if ((role === 'correct' || role === 'valid') && rIdx === activeRow) {
+                  const fromGuess = guessRows[activeRow]?.[cIdx] || ''
+                  if (fromGuess && !letters[cIdx]) {
+                    const copy = rows.map(r => [...r])
+                    copy[rIdx][cIdx] = fromGuess.toUpperCase()
+                    setRows(copy)
+                  }
+                }
+              }}
               onKeyDown={e => {
                 if (e.key === 'Backspace' || e.key === 'Delete') {
                   e.preventDefault()
@@ -126,6 +141,7 @@ export default function App() {
       </div>
     ))
 
+  // Render read-only Top Five grid
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
@@ -145,7 +161,7 @@ export default function App() {
       </div>
     ))
 
-  // 5) Main render
+  // 5) Main render (sticky header retained)
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
       {/* Sticky Header */}
@@ -183,7 +199,7 @@ export default function App() {
               CLEAR CURRENT GUESS
             </button>
           </div>
-          {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700')}
+          {renderDynamicGrid(guessRows, setGuessRows, 'bg-gray-300 dark:bg-gray-700', 'guess')}
         </section>
 
         {/* Correct Letters */}
@@ -191,7 +207,7 @@ export default function App() {
           <h2 className="mt-6 text-center font-bold text-green-600 uppercase mb-2">
             CORRECT LETTERS
           </h2>
-          {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500')}
+          {renderDynamicGrid(correctRows, setCorrectRows, 'bg-green-500', 'correct')}
         </section>
 
         {/* Valid Letters */}
@@ -199,7 +215,7 @@ export default function App() {
           <h2 className="mt-6 text-center font-bold text-yellow-500 uppercase mb-2">
             VALID LETTERS
           </h2>
-          {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500')}
+          {renderDynamicGrid(validRows, setValidRows, 'bg-yellow-500', 'valid')}
         </section>
 
         {/* Top Five Guesses */}
