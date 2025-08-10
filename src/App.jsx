@@ -75,27 +75,40 @@ export default function App() {
   /**
    * Render editable 5-letter grid
    * role: 'guess' | 'correct' | 'valid'
-   * - On focus in 'correct'/'valid' active row:
-   *   1) If the cell already has a letter, clear it (second tap to undo).
-   *   2) Otherwise, auto-fill from the current guess in the same column.
+   *
+   * For 'correct' and 'valid' in the ACTIVE row:
+   *  - Tap/click (even if already focused) toggles the cell between the
+   *    current guess letter (same column) and empty.
+   *  - Input is readOnly and caret is hidden (no flashing cursor).
    */
   const renderDynamicGrid = (rows, setRows, fillColor, role) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
-          const filled     = !!ltr
-          const bgClass    = filled
+          const isHintsRow = role === 'correct' || role === 'valid'
+          const isActiveHintsRow = isHintsRow && rIdx === activeRow
+
+          const filled  = !!ltr
+          const bgClass = filled
             ? fillColor
             : 'bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-600'
           const isGuessGrid = fillColor.includes('gray-')
-          const txtCls     = isGuessGrid
+          const txtCls  = isGuessGrid
             ? 'text-gray-900 dark:text-gray-100'
             : filled
               ? 'text-white'
               : 'text-gray-900 dark:text-gray-100'
-          const highlight  = rIdx === activeRow
-            ? 'ring-2 ring-red-500'
-            : ''
+          const highlight = rIdx === activeRow ? 'ring-2 ring-red-500' : ''
+
+          // Toggle helper used by pointer + keyboard
+          const toggleCell = () => {
+            if (!isActiveHintsRow) return
+            const fromGuess = (guessRows[activeRow]?.[cIdx] || '').toUpperCase()
+            if (!fromGuess) return
+            const copy = rows.map(r => [...r])
+            copy[rIdx][cIdx] = (copy[rIdx][cIdx] === fromGuess) ? '' : fromGuess
+            setRows(copy)
+          }
 
           return (
             <input
@@ -103,27 +116,30 @@ export default function App() {
               type="text"
               maxLength={1}
               value={ltr}
-              onFocus={() => {
-                if ((role === 'correct' || role === 'valid') && rIdx === activeRow) {
-                  const fromGuess = (guessRows[activeRow]?.[cIdx] || '').toUpperCase()
-                  const current   = letters[cIdx] || ''
-                  const copy      = rows.map(r => [...r])
-
-                  if (current) {
-                    // Second tap: clear whatever is there so user can fix it
-                    copy[rIdx][cIdx] = ''
-                    setRows(copy)
-                    return
-                  }
-
-                  if (!current && fromGuess) {
-                    // First tap: auto-fill from current guess
-                    copy[rIdx][cIdx] = fromGuess
-                    setRows(copy)
-                  }
+              readOnly={isHintsRow}                         // no keyboard edits on hints rows
+              style={isHintsRow ? { caretColor: 'transparent' } : undefined} // hide caret
+              // Toggle on every tap/click (works even if already focused)
+              onPointerDown={e => {
+                if (isActiveHintsRow) {
+                  e.preventDefault() // prevent iOS from re-focusing & showing caret
+                  toggleCell()
                 }
               }}
               onKeyDown={e => {
+                if (isHintsRow) {
+                  // Allow keyboard users to toggle with Space/Enter, or clear with Backspace
+                  if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault()
+                    toggleCell()
+                  } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                    e.preventDefault()
+                    const copy = rows.map(r => [...r])
+                    copy[rIdx][cIdx] = ''
+                    setRows(copy)
+                  }
+                  return
+                }
+                // Guess row keyboard UX
                 if (e.key === 'Backspace' || e.key === 'Delete') {
                   e.preventDefault()
                   const copy = rows.map(r => [...r])
@@ -133,6 +149,7 @@ export default function App() {
                 }
               }}
               onChange={e => {
+                if (isHintsRow) return // ignore text input for hints rows
                 const v    = e.target.value.toUpperCase()
                 const copy = rows.map(r => [...r])
                 copy[rIdx][cIdx] = v
