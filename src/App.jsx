@@ -27,23 +27,20 @@ export default function App() {
   const activeRow = guessRows.length - 1
   const solved    = correctRows[activeRow].every(c => c !== '')
 
-  // Handler: Next Guess (carries over greens)
+  // Handlers
   const handleNextGuess = () => {
     if (solved) return
-
     const idx     = activeRow
     const guess   = guessRows[idx]
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // filter solutions, fallback to validWords
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
-    // compute next guess and top 5, then seed with greens from previous row
     const baseNext   = getBestGuess(filtered).split('')
     const seededNext = baseNext.map((ltr, i) => (correct[i] ? correct[i] : ltr))
     const top5       = getTopGuesses(filtered, 5)
@@ -54,7 +51,6 @@ export default function App() {
     setNextBestGuesses(top5.map(w => w.split('')))
   }
 
-  // Handler: Clear All (reset to initial)
   const handleClearAll = () => {
     setPossibleWords(solutions)
     setCorrectRows([Array(WORD_LEN).fill('')])
@@ -63,39 +59,26 @@ export default function App() {
     setNextBestGuesses(initialTop5)
   }
 
-  // Handler: Clear Current Guess
   const handleClearCurrentGuess = () => {
-    setGuessRows(gr =>
-      gr.map((row, i) =>
-        i === activeRow ? Array(WORD_LEN).fill('') : row
-      )
-    )
+    setGuessRows(gr => gr.map((row, i) => (i === activeRow ? Array(WORD_LEN).fill('') : row)))
   }
 
-  /**
-   * Render editable 5-letter grid
-   * role: 'guess' | 'correct' | 'valid'
-   * - When role is 'correct' or 'valid' and the user focuses a cell in the ACTIVE row,
-   *   we auto-fill that cell with the letter from the current guess in the same column
-   *   (only if the cell is empty).
-   */
+  // Editable grid (supports auto-fill on focus for correct/valid)
   const renderDynamicGrid = (rows, setRows, fillColor, role) =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => {
-          const filled     = !!ltr
-          const bgClass    = filled
+          const filled  = !!ltr
+          const bgClass = filled
             ? fillColor
             : 'bg-transparent dark:bg-transparent border border-gray-300 dark:border-gray-600'
           const isGuessGrid = fillColor.includes('gray-')
-          const txtCls     = isGuessGrid
+          const txtCls  = isGuessGrid
             ? 'text-gray-900 dark:text-gray-100'
             : filled
               ? 'text-white'
               : 'text-gray-900 dark:text-gray-100'
-          const highlight  = rIdx === activeRow
-            ? 'ring-2 ring-red-500'
-            : ''
+          const highlight = rIdx === activeRow ? 'ring-2 ring-red-500' : ''
 
           return (
             <input
@@ -129,30 +112,25 @@ export default function App() {
                 setRows(copy)
                 e.target.nextElementSibling?.focus()
               }}
-              className={`
-                ${bgClass} ${txtCls} ${highlight}
+              className={`${bgClass} ${txtCls} ${highlight}
                 w-12 h-12 mx-1 text-lg font-semibold uppercase
-                text-center rounded-md shadow-sm transition
-              `}
+                text-center rounded-md shadow-sm transition`}
             />
           )
         })}
       </div>
     ))
 
-  // Render read-only Top Five grid
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => (
       <div key={rIdx} className="flex justify-center my-2">
         {letters.map((ltr, cIdx) => (
           <div
             key={cIdx}
-            className="
-              bg-gray-300 dark:bg-gray-700
-              w-12 h-12 mx-1 flex items-center justify-center
-              text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
-              rounded-md shadow-sm transition
-            "
+            className="bg-gray-300 dark:bg-gray-700
+                       w-12 h-12 mx-1 flex items-center justify-center
+                       text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
+                       rounded-md shadow-sm transition"
           >
             {ltr}
           </div>
@@ -160,30 +138,24 @@ export default function App() {
       </div>
     ))
 
-  // 5) Main render with a more compact sticky header (responsive)
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Sticky Header — compact padding, still professional */}
-      <div className="
-          sticky top-0 z-20
-          bg-white dark:bg-gray-800
-          border-b border-gray-200 dark:border-gray-700
-          px-3 sm:px-4
-          pt-2 pb-1 sm:pt-3 sm:pb-2
-          flex flex-col justify-center
-        ">
-        <header className="text-center mb-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+      {/* Sticky Header — tighter padding & no empty message gap */}
+      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 pt-1 pb-1">
+        <header className="text-center mb-0">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
             Wordle Solver
           </h1>
-          <p className="mt-0.5 text-gray-500 dark:text-gray-400 text-xs sm:text-sm">
-            {solved ? `Well done! You solved it in ${guessRows.length} guesses 😊` : ''}
-          </p>
+          {/* Only render the message when solved to avoid extra vertical space */}
+          {solved && (
+            <p className="mt-0.5 text-gray-500 dark:text-gray-400 text-sm">
+              {`Well done! You solved it in ${guessRows.length} guesses 😊`}
+            </p>
+          )}
         </header>
-        <Controls
-          onClearAll={handleClearAll}
-          onNextGuess={handleNextGuess}
-        />
+
+        {/* Buttons row with reduced margins/spacing lives in Controls.jsx */}
+        <Controls onClearAll={handleClearAll} onNextGuess={handleNextGuess} />
       </div>
 
       {/* Scrollable Content */}
@@ -196,11 +168,9 @@ export default function App() {
           <div className="flex justify-center mb-4">
             <button
               onClick={handleClearCurrentGuess}
-              className="
-                px-3 py-1 text-sm bg-gray-300 dark:bg-gray-700
-                text-gray-700 dark:text-gray-200 rounded-md
-                hover:bg-gray-400 dark:hover:bg-gray-600 transition
-              "
+              className="px-3 py-1 text-sm bg-gray-300 dark:bg-gray-700
+                         text-gray-700 dark:text-gray-200 rounded-md
+                         hover:bg-gray-400 dark:hover:bg-gray-600 transition"
             >
               CLEAR CURRENT GUESS
             </button>
