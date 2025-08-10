@@ -77,7 +77,7 @@ export default function App() {
    * role: 'guess' | 'correct' | 'valid'
    * - When role is 'correct' or 'valid' and the user focuses a cell in the ACTIVE row,
    *   we auto-fill that cell with the letter from the current guess in the same column
-   *   (only if the cell is empty) — per your new input method.
+   *   (only if the cell is empty).
    */
   const renderDynamicGrid = (rows, setRows, fillColor, role) =>
     rows.map((letters, rIdx) => (
@@ -104,7 +104,6 @@ export default function App() {
               maxLength={1}
               value={ltr}
               onFocus={() => {
-                // Auto-fill from current guess when focusing correct/valid cells in the active row
                 if ((role === 'correct' || role === 'valid') && rIdx === activeRow) {
                   const fromGuess = guessRows[activeRow]?.[cIdx] || ''
                   if (fromGuess && !letters[cIdx]) {
@@ -161,16 +160,23 @@ export default function App() {
       </div>
     ))
 
-  // 5) Main render (sticky header retained)
+  // 5) Main render with a more compact sticky header (responsive)
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 pt-4 pb-2 px-4 flex flex-col justify-center">
+      {/* Sticky Header — compact padding, still professional */}
+      <div className="
+          sticky top-0 z-20
+          bg-white dark:bg-gray-800
+          border-b border-gray-200 dark:border-gray-700
+          px-3 sm:px-4
+          pt-2 pb-1 sm:pt-3 sm:pb-2
+          flex flex-col justify-center
+        ">
         <header className="text-center mb-1">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
             Wordle Solver
           </h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400 text-sm">
+          <p className="mt-0.5 text-gray-500 dark:text-gray-400 text-xs sm:text-sm">
             {solved ? `Well done! You solved it in ${guessRows.length} guesses 😊` : ''}
           </p>
         </header>
