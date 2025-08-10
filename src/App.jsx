@@ -70,7 +70,7 @@ export default function App() {
     )
   }
 
-  // NEW: Apply a Top-5 guess to the current guess row (still editable)
+  // Apply a Top-5 guess to the current guess row (still editable)
   const applyTopGuess = (word) => {
     if (solved) return
     const letters = word.toUpperCase().slice(0, WORD_LEN).split('')
@@ -130,8 +130,7 @@ export default function App() {
               onKeyDown={e => {
                 if (isHintsRow) {
                   if (e.key === ' ' || e.key === 'Enter') {
-                    e.preventDefault()
-                    toggleCell()
+                    e.preventDefault(); toggleCell()
                   } else if (e.key === 'Backspace' || e.key === 'Delete') {
                     e.preventDefault()
                     const copy = rows.map(r => [...r])
@@ -167,7 +166,7 @@ export default function App() {
       </div>
     ))
 
-  // Read-only Top Five grid — now clickable rows to apply a guess
+  // Read-only Top Five grid — clickable rows; remove row-level blue ring
   const renderReadOnlyGrid = rows =>
     rows.map((letters, rIdx) => {
       const word = letters.join('')
@@ -179,13 +178,13 @@ export default function App() {
           onClick={() => applyTopGuess(word)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              applyTopGuess(word)
+              e.preventDefault(); applyTopGuess(word)
             }
           }}
+          // NOTE: removed focus:ring-* from the ROW; keep it focusable for a11y
           className="
             flex justify-center my-2 cursor-pointer group
-            focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md
+            outline-none focus:outline-none
           "
           aria-label={`Use top guess ${word}`}
           title={`Use ${word} as current guess`}
@@ -199,6 +198,7 @@ export default function App() {
                 text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
                 rounded-md shadow-sm transition
                 group-hover:ring-2 group-hover:ring-indigo-500
+                group-focus:ring-2 group-focus:ring-indigo-500
               "
             >
               {ltr}
