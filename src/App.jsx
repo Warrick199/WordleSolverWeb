@@ -36,14 +36,12 @@ export default function App() {
     const correct = correctRows[idx]
     const valid   = validRows[idx]
 
-    // filter solutions, fallback to validWords
     let filtered = filterPossibleWords(possibleWords, guess, correct, valid)
     if (filtered.length === 0) {
       filtered = filterPossibleWords(validBank, guess, correct, valid)
     }
     setPossibleWords(filtered)
 
-    // compute next guess and top 5, then seed with greens from previous row
     const baseNext   = getBestGuess(filtered).split('')
     const seededNext = baseNext.map((ltr, i) => (correct[i] ? correct[i] : ltr))
     const top5       = getTopGuesses(filtered, 5)
@@ -72,13 +70,19 @@ export default function App() {
     )
   }
 
+  // NEW: Apply a Top-5 guess to the current guess row (still editable)
+  const applyTopGuess = (word) => {
+    if (solved) return
+    const letters = word.toUpperCase().slice(0, WORD_LEN).split('')
+    setGuessRows(gr => gr.map((row, i) => (i === activeRow ? letters : row)))
+  }
+
   /**
    * Render editable 5-letter grid
    * role: 'guess' | 'correct' | 'valid'
    *
    * For 'correct' and 'valid' in the ACTIVE row:
-   *  - Tap/click (even if already focused) toggles the cell between the
-   *    current guess letter (same column) and empty.
+   *  - Tap/click toggles the cell between the current guess letter and empty.
    *  - Input is readOnly and caret is hidden (no flashing cursor).
    */
   const renderDynamicGrid = (rows, setRows, fillColor, role) =>
@@ -100,7 +104,6 @@ export default function App() {
               : 'text-gray-900 dark:text-gray-100'
           const highlight = rIdx === activeRow ? 'ring-2 ring-red-500' : ''
 
-          // Toggle helper used by pointer + keyboard
           const toggleCell = () => {
             if (!isActiveHintsRow) return
             const fromGuess = (guessRows[activeRow]?.[cIdx] || '').toUpperCase()
@@ -116,18 +119,16 @@ export default function App() {
               type="text"
               maxLength={1}
               value={ltr}
-              readOnly={isHintsRow}                         // no keyboard edits on hints rows
-              style={isHintsRow ? { caretColor: 'transparent' } : undefined} // hide caret
-              // Toggle on every tap/click (works even if already focused)
+              readOnly={isHintsRow}
+              style={isHintsRow ? { caretColor: 'transparent' } : undefined}
               onPointerDown={e => {
                 if (isActiveHintsRow) {
-                  e.preventDefault() // prevent iOS from re-focusing & showing caret
+                  e.preventDefault()
                   toggleCell()
                 }
               }}
               onKeyDown={e => {
                 if (isHintsRow) {
-                  // Allow keyboard users to toggle with Space/Enter, or clear with Backspace
                   if (e.key === ' ' || e.key === 'Enter') {
                     e.preventDefault()
                     toggleCell()
@@ -139,7 +140,6 @@ export default function App() {
                   }
                   return
                 }
-                // Guess row keyboard UX
                 if (e.key === 'Backspace' || e.key === 'Delete') {
                   e.preventDefault()
                   const copy = rows.map(r => [...r])
@@ -149,7 +149,7 @@ export default function App() {
                 }
               }}
               onChange={e => {
-                if (isHintsRow) return // ignore text input for hints rows
+                if (isHintsRow) return
                 const v    = e.target.value.toUpperCase()
                 const copy = rows.map(r => [...r])
                 copy[rIdx][cIdx] = v
@@ -167,25 +167,46 @@ export default function App() {
       </div>
     ))
 
-  // Render read-only Top Five grid
+  // Read-only Top Five grid — now clickable rows to apply a guess
   const renderReadOnlyGrid = rows =>
-    rows.map((letters, rIdx) => (
-      <div key={rIdx} className="flex justify-center my-2">
-        {letters.map((ltr, cIdx) => (
-          <div
-            key={cIdx}
-            className="
-              bg-gray-300 dark:bg-gray-700
-              w-12 h-12 mx-1 flex items-center justify-center
-              text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
-              rounded-md shadow-sm transition
-            "
-          >
-            {ltr}
-          </div>
-        ))}
-      </div>
-    ))
+    rows.map((letters, rIdx) => {
+      const word = letters.join('')
+      return (
+        <div
+          key={rIdx}
+          role="button"
+          tabIndex={0}
+          onClick={() => applyTopGuess(word)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              applyTopGuess(word)
+            }
+          }}
+          className="
+            flex justify-center my-2 cursor-pointer group
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md
+          "
+          aria-label={`Use top guess ${word}`}
+          title={`Use ${word} as current guess`}
+        >
+          {letters.map((ltr, cIdx) => (
+            <div
+              key={cIdx}
+              className="
+                bg-gray-300 dark:bg-gray-700
+                w-12 h-12 mx-1 flex items-center justify-center
+                text-lg font-semibold uppercase text-gray-900 dark:text-gray-100
+                rounded-md shadow-sm transition
+                group-hover:ring-2 group-hover:ring-indigo-500
+              "
+            >
+              {ltr}
+            </div>
+          ))}
+        </div>
+      )
+    })
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
