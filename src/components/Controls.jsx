@@ -1,34 +1,29 @@
+// src/components/Controls.jsx
 import React, { useState, useEffect } from 'react'
 
 export default function Controls({ onNextGuess, onClearAll }) {
-  // start in light until we read the stored value
+  // Persist theme across reloads
   const [dark, setDark] = useState(false)
 
-  // on mount, read the saved theme and apply it
   useEffect(() => {
     const stored = localStorage.getItem('theme')
     const isDark = stored === 'dark'
     setDark(isDark)
-    if (isDark) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
+    if (isDark) document.documentElement.classList.add('dark')
+    else document.documentElement.classList.remove('dark')
   }, [])
 
   function toggleTheme() {
     const next = !dark
     setDark(next)
     localStorage.setItem('theme', next ? 'dark' : 'light')
-    if (next) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
+    if (next) document.documentElement.classList.add('dark')
+    else document.documentElement.classList.remove('dark')
   }
 
   return (
-    <div className="flex justify-center items-center mt-4 mb-8 space-x-4">
+    <div className="flex justify-center items-center mt-1 mb-2 space-x-2">
+      {/* Clear All */}
       <button
         onClick={onClearAll}
         className="
@@ -41,6 +36,8 @@ export default function Controls({ onNextGuess, onClearAll }) {
       >
         CLEAR ALL
       </button>
+
+      {/* Next Guess */}
       <button
         onClick={onNextGuess}
         className="
@@ -53,6 +50,8 @@ export default function Controls({ onNextGuess, onClearAll }) {
       >
         NEXT GUESS
       </button>
+
+      {/* Theme Toggle (square, aligned height) */}
       <button
         onClick={toggleTheme}
         className="
