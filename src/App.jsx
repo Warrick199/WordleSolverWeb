@@ -75,9 +75,9 @@ export default function App() {
   /**
    * Render editable 5-letter grid
    * role: 'guess' | 'correct' | 'valid'
-   * - When role is 'correct' or 'valid' and the user focuses a cell in the ACTIVE row,
-   *   we auto-fill that cell with the letter from the current guess in the same column
-   *   (only if the cell is empty).
+   * - On focus in 'correct'/'valid' active row:
+   *   1) If the cell already has a letter, clear it (second tap to undo).
+   *   2) Otherwise, auto-fill from the current guess in the same column.
    */
   const renderDynamicGrid = (rows, setRows, fillColor, role) =>
     rows.map((letters, rIdx) => (
@@ -105,10 +105,20 @@ export default function App() {
               value={ltr}
               onFocus={() => {
                 if ((role === 'correct' || role === 'valid') && rIdx === activeRow) {
-                  const fromGuess = guessRows[activeRow]?.[cIdx] || ''
-                  if (fromGuess && !letters[cIdx]) {
-                    const copy = rows.map(r => [...r])
-                    copy[rIdx][cIdx] = fromGuess.toUpperCase()
+                  const fromGuess = (guessRows[activeRow]?.[cIdx] || '').toUpperCase()
+                  const current   = letters[cIdx] || ''
+                  const copy      = rows.map(r => [...r])
+
+                  if (current) {
+                    // Second tap: clear whatever is there so user can fix it
+                    copy[rIdx][cIdx] = ''
+                    setRows(copy)
+                    return
+                  }
+
+                  if (!current && fromGuess) {
+                    // First tap: auto-fill from current guess
+                    copy[rIdx][cIdx] = fromGuess
                     setRows(copy)
                   }
                 }
@@ -177,11 +187,10 @@ export default function App() {
         <Controls onClearAll={handleClearAll} onNextGuess={handleNextGuess} />
       </div>
 
-      {/* Scrollable Content — top padding reduced by half */}
+      {/* Scrollable Content — compact top gap */}
       <div className="flex-1 overflow-auto pt-3 px-6 pb-6">
         {/* Guesses */}
         <section>
-          {/* Title gap reduced by half (mt-6 → mt-3) */}
           <h2 className="mt-3 text-center font-bold text-gray-700 dark:text-gray-100 uppercase mb-2">
             GUESSES
           </h2>
